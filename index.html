@@ -1,0 +1,680 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CF800-11H Heated Grip &amp; Seat Coder</title>
+<style>
+  :root{--bg:#0f1115;--card:#1a1d24;--line:#2b2f3a;--fg:#e8eaed;--mut:#9aa1ad;--accent:#ff7a2f;
+        --ok:#36c56f;--warn:#ffb020;--bad:#ff5252;--mono:ui-monospace,Menlo,Consolas,monospace}
+  @media(prefers-color-scheme:light){:root:not([data-theme=dark]){--bg:#f4f5f7;--card:#fff;--line:#d8dbe0;--fg:#15171c;--mut:#5b6472;--accent:#d9531e}}
+  *{box-sizing:border-box}html,body{margin:0}
+  body{background:var(--bg);color:var(--fg);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+       padding:max(14px,env(safe-area-inset-top)) 14px calc(28px + env(safe-area-inset-bottom));max-width:640px;margin:0 auto}
+  h1{font-size:1.15rem;margin:.1rem 0 .1rem}
+  .sub{color:var(--mut);font-size:.82rem;margin:0 0 .9rem}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin:0 0 12px}
+  .card h2{font-size:.78rem;letter-spacing:.04em;text-transform:uppercase;color:var(--mut);margin:0 0 4px}
+  .card p.d{font-size:.84rem;color:var(--mut);margin:.2rem 0 .7rem}
+  button.step{width:100%;border:0;border-radius:11px;padding:15px;font-size:1.02rem;font-weight:600;
+       background:var(--accent);color:#fff}
+  button.step[disabled]{background:var(--line);color:var(--mut)}
+  button.step.done{background:var(--ok)}
+  button.ghost{background:transparent;border:1px solid var(--line);color:var(--fg)}
+  .status{display:flex;align-items:center;gap:8px;font-size:.9rem;margin:0 0 10px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--bad);flex:0 0 auto}
+  .dot.on{background:var(--ok)}
+  .chk{display:flex;align-items:center;gap:10px;font-size:1rem;margin:4px 0}
+  .chk input{width:22px;height:22px;accent-color:var(--accent)}
+  .val{font:1rem/1.5 var(--mono);word-break:break-all}
+  .val b{color:var(--accent)}
+  pre.log{font:0.8rem/1.45 var(--mono);background:#000;color:#cfe;border-radius:10px;padding:10px;
+       max-height:40vh;overflow:auto;white-space:pre-wrap;word-break:break-all;margin:6px 0 0}
+  .log .tx{color:#7fd1ff}.log .rx{color:#9effa0}.log .er{color:#ff8a8a}.log .in{color:#ffd27f}
+  .rowc{display:flex;gap:8px}.rowc input{flex:1;font:1rem var(--mono);background:var(--bg);color:var(--fg);
+       border:1px solid var(--line);border-radius:10px;padding:10px;text-transform:uppercase}
+  .warnbox{border-left:3px solid var(--warn);background:rgba(255,176,32,.08);padding:9px 12px;border-radius:0 10px 10px 0;font-size:.84rem}
+  .badbox{border-left:3px solid var(--bad);background:rgba(255,82,82,.08);padding:10px 12px;border-radius:0 10px 10px 0;font-size:.9rem;display:none}
+  details{margin:0 0 12px}summary{color:var(--mut);font-size:.85rem;cursor:pointer}
+  .seg{display:flex;gap:8px;margin:2px 0 8px}
+  .seg button{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--mut);padding:8px;border-radius:9px;font-size:.8rem}
+  .seg button[aria-pressed=true]{border-color:var(--accent);color:var(--fg);background:rgba(255,122,47,.12)}
+  .disc{border:1px solid var(--bad);background:rgba(255,82,82,.08);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:.84rem}
+  .disc b{display:block;margin:0 0 4px}
+  .foot{color:var(--mut);font-size:.76rem;line-height:1.6;margin:20px 0 0;border-top:1px solid var(--line);padding-top:12px}
+  .foot a{color:var(--accent)}
+</style>
+</head>
+<body>
+  <div class="disc" role="note">
+    <b>Community project — not affiliated with, authorised by or endorsed by CFMOTO.</b>
+    This tool reads and writes configuration data in your motorcycle's instrument cluster through the diagnostic port. It is provided as is, without warranty of any kind. Changing vehicle configuration may affect your warranty and, if done incorrectly, can leave a module misconfigured. You use this tool entirely at your own risk and are solely responsible for any change made to your vehicle.
+  </div>
+
+  <h1>CF800-11H Heated Grip &amp; Seat Coder</h1>
+  <p class="sub">Enables the factory heated-grip and heated-seat functions in the instrument cluster, using an OBDLink CX adapter over Bluetooth LE. Every change is read, modified and verified on the device. Before the first write, the original configuration is saved in this browser so that it can be written back with Restore.</p>
+
+  <div class="badbox" id="noble">
+    <b>Web Bluetooth unavailable in this browser.</b> Open this page in <b>Chrome on Android</b> (or Edge/Opera), served over <b>https://</b>. It will not work in Safari/iOS, or from a <code>file://</code> link.
+  </div>
+
+  <div class="card">
+    <h2>Before you start</h2>
+    <p class="d">You need an Android phone with Chrome or Edge, an OBDLink CX adapter, and a battery charger connected to the motorcycle for the whole procedure.</p>
+    <label class="chk"><input type="checkbox" id="ack"> I have read the notice above and accept full responsibility for any change I make to my vehicle.</label>
+    <p class="d" style="margin:.4rem 0 0">Required to enable Connect. Remembered on this device.</p>
+  </div>
+
+  <div class="status"><span class="dot" id="dot"></span><span id="stat">Not connected</span></div>
+
+  <div class="card">
+    <h2>Step 1 — Connect</h2>
+    <p class="d">Switch the ignition on (engine off) with the battery charger connected. Plug the OBDLink CX into the diagnostic port, then connect.</p>
+    <button class="step" id="b1" disabled>① Connect to OBDLink CX</button>
+  </div>
+
+  <div class="card">
+    <h2>Step 2 — Unlock</h2>
+    <p class="d">Opens an extended diagnostic session and performs the security-access handshake with the instrument cluster (DASH, 0x714).</p>
+    <button class="step" id="b2" disabled>② Enter session &amp; unlock</button>
+    <div class="val" id="skv" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 3 — Read configuration</h2>
+    <p class="d">Reads the cluster's identification (part number <code>F187</code>, software <code>F195</code>) and its complete configuration record (<code>F010</code>), then shows the current heating settings and whether this cluster is a confirmed variant. Always read before writing.</p>
+    <button class="step" id="b3" disabled>③ Read configuration</button>
+    <button class="step ghost" id="bdry" disabled style="margin-top:8px">↪ Dry run (read-only)</button>
+    <p class="d" style="margin:.6rem 0 0">The dry run performs steps 2 and 3, reads the cluster's identification, tests the adapter's multi-frame transmit path and shows exactly what <i>would</i> change. It never writes and never enables step 4. Recommended before the first write.</p>
+    <div class="val" id="cfgv" style="margin-top:8px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Step 4 — Select and write</h2>
+    <p class="d">Unlocks again immediately before writing so the session cannot have expired, confirms that the adapter can transmit the multi-frame write, writes the record, resets the cluster and reads the record back to verify the change.</p>
+    <label class="chk"><input type="checkbox" id="grips" checked> Heated grips (byte 1, bit 4)</label>
+    <label class="chk"><input type="checkbox" id="seat" checked> Heated seat (byte 1, bit 5)</label>
+    <div class="val" id="prev" style="margin:6px 0 10px"></div>
+    <button class="step" id="b4" disabled>④ Write config &amp; reset</button>
+  </div>
+
+  <div class="card">
+    <h2>Rollback — Restore the original configuration</h2>
+    <p class="d">Writes back the configuration record the cluster held before the first write from this device (saved automatically), or a value you enter from an earlier log: the <i>current F010</i> line recorded before your first write. Uses the same verified procedure as step 4. Requires a fresh read (step 3); the length must match.</p>
+    <div class="rowc"><input id="orig" placeholder="original F010, e.g. 7300…" autocapitalize="characters" spellcheck="false"><button class="step ghost" id="brb" style="width:auto;padding:10px 14px" disabled>↺ Restore</button></div>
+  </div>
+
+  <div class="card warnbox">
+    Only bits 4 and 5 of byte 1 are changed; every other byte is written back exactly as read. Do not switch off the ignition or disconnect the adapter between the write and the reset. Note the value logged in step 3 before writing. Step 3 also shows whether your cluster is a confirmed variant.
+  </div>
+
+  <details>
+    <summary>Advanced (experts only) — raw command console &amp; BCM output test</summary>
+    <div class="warnbox" style="margin:8px 0">
+      <b>Experts only.</b> Commands entered here are sent directly to the vehicle without any of the safety checks used by the guided steps. They are not needed for normal use.
+    </div>
+    <div class="card" style="margin-top:8px">
+      <div class="seg" id="seg">
+        <button data-tx="714" data-rx="794" aria-pressed="true">DASH 0x714</button>
+        <button data-tx="715" data-rx="795" aria-pressed="false">BCM 0x715</button>
+      </div>
+      <p class="d">Pick the module (sets both header and security mask), then run <b>② Unlock</b> for it before sending protected commands. Steps 3–4 above are DASH-only and refuse to run while BCM is selected. BCM output test: select BCM, ② Unlock, then I/O-control DID <code>3503</code>; live level <code>22 3503</code> (0/1/2/3 = OFF/MIN/MID/MAX).</p>
+      <div class="rowc"><input id="raw" placeholder="e.g. 223503" autocapitalize="characters"><button class="step ghost" id="braw" style="width:auto;padding:10px 14px">Send</button></div>
+    </div>
+  </details>
+
+  <div class="card">
+    <h2>Log</h2>
+    <pre class="log" id="log"></pre>
+    <button class="step ghost" id="copylog" style="margin-top:8px">Copy log</button>
+  </div>
+
+  <div class="foot">
+    CF800-11H Heated Grip &amp; Seat Coder <span id="ver"></span> ·
+    <a href="https://github.com/Untiring1337/cfmoto-web-coding">Source code &amp; issue tracker</a> · MIT License<br>
+    Community project, not affiliated with, authorised by or endorsed by CFMOTO. Provided as is, without warranty; use at your own risk.
+    CFMOTO and all product names are trademarks of their respective owners and are used here for identification only.
+  </div>
+
+<script>
+(function(){
+  "use strict";
+  var SVC=0xfff0, CH_WRITE=0xfff2, CH_NOTIFY=0xfff1;
+  var MASK_DASH=[0x34,0x66,0x2E,0x8D], MASK_BCM=[0x6B,0x27,0x8D,0xC2];
+  var dev=null,gatt=null,wc=null,nc=null, rxbuf="", waiter=null;
+  var TXID="714", RXID="794";               // active header (DASH by default)
+  var ACTMASK=MASK_DASH;                     // active security mask, tracks the selected module
+  var cfgBytes=null;
+  var fcPairs=false;                         // STCFCPA pairs accepted at connect → the adapter can SEND long messages
+  var writeMismatch=false;                   // false, or the label set (L4/LR) of the write that failed its re-read check;
+                                             // ④ and ↺ both stay blocked until reconnect
+  var connGen=0;                             // bumped on every disconnect: a write that outlives its link must not touch the next one
+
+  var VERSION="v1.0.0", PRODUCT="CF800-11H Heated Grip & Seat Coder";
+  // Clusters on which the byte-1 bit 4/5 mapping has been verified on a vehicle. Add one entry per confirmed variant.
+  var KNOWN=[{model:"CF800-11H", part:"6WW9-171000-8000", sw:"SW.1.02.02", len:16}];
+  function findKnown(part){ for(var i=0;i<KNOWN.length;i++) if(KNOWN[i].part===part) return KNOWN[i]; return null; }
+  var ident={read:false, part:"", sw:""};    // cluster identification from step 3 or the dry run; cleared per connection
+  function setIdent(part,sw){ ident.read=true; ident.part=(part||"").trim(); ident.sw=(sw||"").trim(); }
+  function clearIdent(){ ident.read=false; ident.part=""; ident.sw=""; }
+
+  var $=function(id){return document.getElementById(id);};
+  var log=$("log");
+  function line(cls,txt){var s=document.createElement("span");s.className=cls;s.textContent=txt+"\n";log.appendChild(s);log.scrollTop=log.scrollHeight;}
+  function setStat(t,on){$("stat").textContent=t;$("dot").classList.toggle("on",!!on);}
+  function hx(n){return ("0"+(n&255).toString(16)).slice(-2).toUpperCase();}
+  function toHexStr(a){return a.map(hx).join("");}
+  function bytesOf(h){h=h.replace(/[^0-9a-fA-F]/g,"");var a=[];for(var i=0;i<h.length;i+=2)a.push(parseInt(h.substr(i,2),16));return a;}
+
+  if(!navigator.bluetooth){ $("noble").style.display="block"; }
+
+  // ---- risk acknowledgement: Connect stays disabled until the notice has been accepted ----
+  var ACK_KEY="cf800-heating-coder.ack";
+  function ackStored(){ try{ return localStorage.getItem(ACK_KEY)==="1"; }catch(_){ return false; } }
+  function ackSave(v){ try{ localStorage.setItem(ACK_KEY,v?"1":"0"); }catch(_){} }
+  function b1Gate(){ $("b1").disabled=connecting || !navigator.bluetooth || !$("ack").checked; }
+
+  // ---- DASH / BCM seed->key (checked against known test vectors at load) ----
+  function seedToKey(seed,mask){
+    var t=[seed[0]^mask[0],seed[1]^mask[1],seed[2]^mask[2],seed[3]^mask[3]];
+    var t0=t[0],t1=t[1],t2=t[2],t3=t[3];
+    return [ t3&0xF0, (((t3&0x2F)<<2)|(t1&0x03))&0xFF, (t0&0xC0)|(t1>>2), (((t0&0x0F)<<4)|(t2&0x0F))&0xFF ];
+  }
+
+  // ---- BLE transport: write ASCII+CR (chunked), collect notify until '>' ----
+  var desync=false;                          // set after a failed command: a late reply may still arrive
+  function sleep(ms){return new Promise(function(r){setTimeout(r,ms);});}
+  function onNotify(e){
+    var v=e.target.value, s="";
+    for(var i=0;i<v.byteLength;i++){var c=v.getUint8(i); if(c!==0) s+=String.fromCharCode(c);}
+    rxbuf+=s;
+    if(waiter && rxbuf.indexOf(">")>=0){ var w=waiter; waiter=null; var r=rxbuf.replace(/>/g,""); rxbuf=""; clearTimeout(w.t); w.ok(r); }
+  }
+  // One command at a time. The reply listener is armed BEFORE the write: over BLE the adapter's reply
+  // notification can be delivered before the write's acknowledgement resolves, and must not be missed
+  // (the old code armed it afterwards, so a fast "OK" was sometimes dropped → "timeout waiting for '>'").
+  async function sendRaw(cmd,tmo){
+    if(!wc) throw new Error("not connected");
+    if(waiter) throw new Error("busy — another command is still running");
+    if(desync){ await sleep(700); desync=false; }   // let a late reply from a failed command arrive, then discard it
+    rxbuf="";
+    var data=new TextEncoder().encode(cmd+"\r");
+    line("tx","» "+cmd);
+    return new Promise(function(resolve,reject){
+      var w={ok:resolve,t:null}; waiter=w;
+      function fail(err){ if(waiter===w) waiter=null; clearTimeout(w.t); desync=true; reject(err); }
+      w.t=setTimeout(function(){ fail(new Error("timeout waiting for '>'")); }, tmo||5000);
+      (async function(){
+        try{ for(var i=0;i<data.length;i+=20){ if(waiter!==w) return; await wc.writeValueWithResponse(data.slice(i,i+20)); } }
+        catch(err){ if(waiter===w) fail(err); }
+      })();
+    });
+  }
+  // ELM/STN output → one continuous hex string. Long (multi-frame) replies arrive as
+  //   "013\r0:62F010730000\r1:xxxxxxxxxxxxxx\r2:xxxxxxxxxxxxxx"
+  // i.e. a 3-digit hex byte count, then frames prefixed "N:". Strip the prefixes and keep exactly
+  // `count` bytes (drops the filler in the last frame). lastMF records what was expected vs received.
+  var lastMF=null;
+  function clean(r){
+    lastMF=null;
+    var L=r.toUpperCase().split(/[\r\n]+/).map(function(s){return s.replace(/[\s>]/g,"");}).filter(Boolean);
+    var out="", i=0;
+    while(i<L.length){
+      if(/^[0-9A-F]{3}$/.test(L[i]) && i+1<L.length && /^0:/.test(L[i+1])){
+        var want=parseInt(L[i],16), hex=""; i++;
+        while(i<L.length && /^[0-9A-F]:/.test(L[i])){ hex+=L[i].slice(2); i++; }
+        var got=Math.min(hex.length>>1,want);
+        lastMF={want:want,got:got};
+        out+=hex.slice(0,got*2);
+      } else { out+=L[i]; i++; }
+    }
+    return out;
+  }
+  // Adapter settings (AT…) are safe to resend after a lost reply; requests to the bike are never auto-retried.
+  async function cmd(c,tmo){
+    var tries=/^AT/i.test(c)?3:1;
+    for(var k=1;;k++){
+      try{
+        var r=await sendRaw(c,tmo);
+        line("rx","« "+r.replace(/\r/g,"\\r").trim());
+        if(/STOPPED/i.test(r)){ desync=true; throw new Error("adapter reported STOPPED — it was interrupted and did not run "+c); }
+        return clean(r);
+      }catch(e){
+        if(k>=tries || !/timeout|STOPPED/.test(e.message)) throw e;
+        line("in","  (no reply to "+c+" — resending, attempt "+(k+1)+" of "+tries+")");
+      }
+    }
+  }
+
+  // ---- connection ----
+  function resetSteps(){   // a new connection means a new diagnostic session: everything after ① starts over
+    [["b2","② Enter session & unlock"],["b3","③ Read configuration"],["b4","④ Write config & reset"],["brb","↺ Restore"]].forEach(function(p){
+      var b=$(p[0]); b.classList.remove("done"); b.textContent=p[1]; b.disabled=true; });
+    $("bdry").disabled=true;
+  }
+  function onDisconnect(){
+    connGen++;
+    setStat("disconnected",false); gatt=null; wc=null; nc=null; waiter=null; rxbuf=""; fcPairs=false; writeMismatch=false; clearIdent();
+    resetSteps(); $("b1").classList.remove("done"); $("b1").textContent="① Connect to OBDLink CX";
+  }
+  var connecting=false;
+  async function connect(){
+    if(connecting) return;
+    connecting=true; $("b1").disabled=true;
+    try{
+      if(gatt && gatt.connected){
+        line("in","closing the existing connection first");
+        try{ if(nc) nc.removeEventListener("characteristicvaluechanged",onNotify); }catch(_){}
+        gatt.disconnect(); onDisconnect();
+      }
+      waiter=null; rxbuf=""; desync=false; fcPairs=false; writeMismatch=false; clearIdent(); resetSteps();
+      cfgBytes=null; showCfg(); $("prev").textContent="";   // a new connection may be a different vehicle: clear the last read
+      setStat("requesting device…");
+      dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"OBDLink"}],optionalServices:[SVC]});
+      dev.removeEventListener("gattserverdisconnected",onDisconnect);
+      dev.addEventListener("gattserverdisconnected",onDisconnect);
+      setStat("connecting…");
+      gatt=await dev.gatt.connect();
+      var svc=await gatt.getPrimaryService(SVC);
+      wc=await svc.getCharacteristic(CH_WRITE);
+      nc=await svc.getCharacteristic(CH_NOTIFY);
+      await nc.startNotifications();                 // also triggers pairing (PIN 123456 if asked)
+      nc.addEventListener("characteristicvaluechanged",onNotify);
+      line("in","connected to "+(dev.name||"device"));
+      setStat("initialising…",true);
+      // ELM/STN init: echo off, spaces off, headers off, CAN 11b/500k, auto-format on
+      for(var c of ["ATZ","ATE0","ATL0","ATS0","ATH0","ATSP6","ATCAF1","ATAT1"]){ await cmd(c, c==="ATZ"?8000:5000); }
+      // adapter identity (asks the adapter only, nothing goes to the bike); tells us which STN commands exist
+      for(var q of ["STI","STDI"]){ try{ await cmd(q); }catch(e){ line("in","  "+q+": "+e.message); } }
+      await applyHeader();
+      // Flow control: by default the adapter answers a long reply on an OBD-standard ID (7E8→7E0), which the
+      // DASH (0x794→0x714) never sees, so it stops after the first frame. Send FC on the module's request ID.
+      for(var f of ["ATFCSD300000","ATFCSM1"]){
+        var fr=await cmd(f);
+        if(fr.indexOf("OK")<0) throw new Error(f+" not accepted ("+fr+") — adapter can't do custom flow control; long replies will be cut off");
+      }
+      // Flow control the other way round: when the adapter SENDS a long message (the 2E write, via STPX) it must
+      // accept the module's FC frame. By default it expects that on request+8 (0x71C), which the DASH never uses.
+      // STN pairs fix that. Once any pair exists only listed pairs get FC, so list both modules; they name the
+      // same IDs as ATFCSH above, so the two flow-control settings never disagree. Reads still work without them.
+      // A lost reply redoes the whole list from STCFCPC, so a resend can never leave a duplicate or half-built list.
+      var pairErr=null;
+      for(var a=1;a<=3 && !fcPairs;a++){
+        try{
+          for(var p of ["STCFCPC","STCFCPA 714,794","STCFCPA 715,795"]){
+            var pr=await cmd(p);
+            if(pr.indexOf("OK")<0){ var pe=new Error(p+" not accepted ("+pr+")"); pe.refused=true; throw pe; }
+          }
+          fcPairs=true;
+        }catch(e){
+          if(!wc || !(gatt&&gatt.connected)) throw e; // link dropped: that's "connect failed", not an adapter limitation
+          pairErr=e;
+          if(e.refused) break;                        // the adapter answered, and not with OK: it can't do pairs
+          if(a<3) line("in","  (no reply during flow-control pair setup — redoing it from STCFCPC, attempt "+(a+1)+" of 3)");
+        }
+      }
+      if(!fcPairs){
+        line("er","  "+pairErr.message+(pairErr.refused?" — this adapter can't send long messages":" — the adapter kept not answering")+", so ④ Write stays blocked (reads still work; reconnect to try again)");
+        try{ await cmd("STCFCPC"); }catch(_){}      // don't leave a half-built pair list behind (it would starve the BCM of FC)
+      }
+      if(!wc || !(gatt&&gatt.connected)) throw new Error("not connected — the Bluetooth link dropped during setup");
+      setStat("connected — CX ready",true);
+      $("b1").classList.add("done"); $("b1").textContent="① Connected ✓";
+      $("b2").disabled=false; $("bdry").disabled=false;
+    }catch(e){ line("er","connect failed: "+e.message); setStat("connect failed",false); }
+    finally{ connecting=false; b1Gate(); }
+  }
+  async function applyHeader(){ await cmd("ATSH"+TXID); await cmd("ATCRA"+RXID); await cmd("ATFCSH"+TXID); }
+
+  function neg(r){ // detect 7F negative response; return nrc or null. Skips leading "response pending" (7F xx 78)
+    while(r.indexOf("7F")===0 && r.substr(4,2)==="78" && r.length>6) r=r.substr(6);
+    var i=r.indexOf("7F"); if(i===0) return r.substr(4,2)||"??"; return null;
+  }
+  // Adapter (not module) error replies, as they look after clean(): upper case, spaces removed. None of these
+  // words can occur inside a hex reply, so a match is always the adapter talking.
+  function adapterErr(r){
+    if(r.indexOf("?")>=0) return "adapter rejected the command (?)";
+    if(/FCRXTIMEOUT/.test(r)) return "FC RX TIMEOUT — the module's flow-control frame never reached the adapter, so only the first frame went out";
+    if(/NODATA/.test(r)) return "NO DATA — no reply from the module";
+    if(/CANERROR|BUSBUSY|BUSERROR/.test(r)) return "CAN bus problem ("+r+")";
+    if(/BUFFERFULL|OUTOFMEMORY/.test(r)) return "adapter ran out of memory ("+r+")";
+    if(/DATAERROR|RXERROR/.test(r)) return "garbled reply ("+r+")";
+    return null;
+  }
+  // A message longer than one CAN frame (7 data bytes) needs the STN command STPX: it splits the message into
+  // ISO-TP frames for this one send. h: is left out, so the header is the ATSH one (applyHeader). r: is left out
+  // on purpose: with r:1 a "response pending" 7F xx 78 would count as the answer and the real one would be lost.
+  // t: is the reply timeout (it overrides STPTO, which is in ms; the manual doesn't restate the unit for t:). The
+  // page waits much longer than t:, because writing to the adapter while it is still listening aborts it (STOPPED).
+  function stpx(hex,t){ return "STPX d:"+hex+",t:"+t; }
+
+  async function unlock(mask){
+    var r=await cmd("1003");                     // extended session
+    if(r.indexOf("5003")<0){ throw new Error("extended session refused ("+r+")"); }
+    r=await cmd("2701");                          // request seed
+    if(r.indexOf("6701")<0){ var n=neg(r);
+      var sm="seed request failed"+(n?" (NRC "+n+")":" ("+r+")");
+      if(n==="37") sm+=" — security is locked out from earlier bad keys; wait before retrying.";
+      var e1=new Error(sm); e1.lockout=(n==="37"); throw e1; }
+    var after=r.substr(r.indexOf("6701")+4);
+    var seed=bytesOf(after).slice(0,4);
+    if(seed.length<4) throw new Error("short seed: "+after);
+    if(seed[0]===0&&seed[1]===0&&seed[2]===0&&seed[3]===0){ line("in","seed is zero — already unlocked"); return seed; }
+    var key=seedToKey(seed,mask);
+    $("skv").innerHTML="seed <b>"+toHexStr(seed)+"</b> → key <b>"+toHexStr(key)+"</b>";
+    r=await cmd("2702"+toHexStr(key));            // send key
+    if(r.indexOf("6702")<0){ var n2=neg(r);
+      var km="key rejected"+(n2?" (NRC "+n2+")":" ("+r+")");
+      if(n2==="35") km+=" — invalid key: the mask/algorithm is wrong for this ECU. Do NOT retry; repeated bad keys can trip a timed lockout.";
+      else if(n2==="36") km+=" — exceeded attempts: the module is now locked. Stop and wait (often ~10 min) before trying again.";
+      else if(n2==="37") km+=" — time delay not expired: a previous lockout is still active. Wait before retrying.";
+      var e2=new Error(km); e2.lockout=(n2==="36"||n2==="37"); throw e2; }
+    line("in","security access granted");
+    return seed;
+  }
+
+  async function doUnlock(){
+    $("b2").disabled=true;
+    try{ await unlock(ACTMASK); $("b2").classList.add("done"); $("b2").textContent="② Unlocked ✓"; $("b3").disabled=false; }
+    catch(e){ line("er",e.message);
+      if(e.lockout){ // don't let the user keep hammering a locked module
+        $("b2").textContent="② Locked out — wait, then retry";
+        setTimeout(function(){ if(!$("b2").classList.contains("done")){ $("b2").disabled=false; $("b2").textContent="② Enter session & unlock"; } },60000);
+      } else { $("b2").disabled=false; }
+    }
+  }
+
+  // Is this cluster a confirmed variant? Needs the identification from step 3 (or the dry run) and a matching length.
+  function variantNote(len){
+    var k=findKnown(ident.part);
+    if(ident.read && k && len===k.len) return {ok:true, text:"Confirmed variant: "+k.model+" cluster "+k.part+" ("+k.len+"-byte record)"};
+    var why= !ident.read ? "cluster not identified yet — run step 3"
+           : !ident.part ? "the cluster's part number (F187) could not be read"
+           : !k          ? "part number "+ident.part+" is not on the confirmed list"
+           :               "unexpected record length: "+len+" bytes (the confirmed "+k.part+" uses "+k.len+")";
+    return {ok:false, text:"UNCONFIRMED cluster — "+why};
+  }
+  function showCfg(){
+    if(!cfgBytes){$("cfgv").textContent="";return;}
+    var g=(cfgBytes[1]&0x10)?"on":"off", s=(cfgBytes[1]&0x20)?"on":"off", v=variantNote(cfgBytes.length);
+    var vEl=document.createElement("span");      // part numbers come from the vehicle: insert as text, not HTML
+    vEl.style.color=v.ok?"var(--ok)":"var(--bad)";
+    vEl.textContent=v.ok ? "✓ "+v.text+"." : "⚠ "+v.text+". The heating bits have only been verified on the clusters listed in the documentation; writing to another variant may set the wrong option.";
+    $("cfgv").innerHTML="F010 ("+cfgBytes.length+" bytes) = <b>"+toHexStr(cfgBytes)+"</b><br>byte1="+hx(cfgBytes[1])+" → grips <b>"+g+"</b>, seat <b>"+s+"</b><br>";
+    $("cfgv").appendChild(vEl);
+    preview();
+  }
+  function preview(){
+    if(!cfgBytes){$("prev").textContent="";return;}
+    var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
+    var nb=cfgBytes.slice(); nb[1]=(nb[1]|m)&0xFF;
+    $("prev").innerHTML="will write byte1 "+hx(cfgBytes[1])+" → <b>"+hx(nb[1])+"</b>";
+  }
+  function dashOnly(what){ // steps 3–4 must only ever talk to the DASH
+    if(TXID==="714") return true;
+    line("er",what+" is DASH-only — select DASH 0x714 in Advanced first (current target 0x"+TXID+")");
+    return false;
+  }
+  async function readF010(){ // pure read, returns the whole record or throws (shared by ③, dry-run, verify)
+    var r=await cmd("22F010");
+    if(lastMF && lastMF.got<lastMF.want) throw new Error("reply cut off: got "+lastMF.got+" of "+lastMF.want+" bytes (multi-frame flow-control problem). Nothing was written — do not write.");
+    if(r.indexOf("62F010")<0){ var n=neg(r); throw new Error("read failed"+(n?" (NRC "+n+")":" ("+r+")")); }
+    var b=bytesOf(r.substr(r.indexOf("62F010")+6));
+    if(lastMF) b=b.slice(0,lastMF.want-3);       // record length exactly as the cluster declared it
+    if(b.length<8) throw new Error("expected at least 8 bytes, got "+b.length+" ("+r+") — STOP, do not write");
+    return b;                                     // keep every byte; the write sends back the same length
+  }
+
+  // Read-only proof that the adapter can SEND a multi-frame message (the write is one). A 9-byte read request
+  // has to go out as multiple frames, over the same STPX path the write uses; any answer from the cluster
+  // means the transmit path works.
+  async function probeLongSend(){
+    if(!fcPairs) throw new Error("the adapter didn't accept the flow-control pairs at connect (see log), so it can't send the write. Do not write.");
+    var r=await cmd(stpx("22F010F010F010F010",1000),8000);
+    var ae=adapterErr(r);
+    if(ae) throw new Error("long-message test failed: "+ae+". The write couldn't be sent. Do not write.");
+    if(lastMF && lastMF.got<lastMF.want) throw new Error("long-message test: reply cut off ("+lastMF.got+"/"+lastMF.want+") — do not write.");
+    if(r.indexOf("62F010")<0 && r.indexOf("7F22")<0) throw new Error("long-message test: no valid answer ("+r+") — the write path is unproven. Do not write.");
+    line("in","multi-frame send OK (cluster answered a 9-byte request)");
+  }
+
+  // Read-only identification DIDs (standard UDS; unsupported ones just return 7F 22 31). Returns {DID: text} for
+  // the ones that answered.
+  async function readDids(ids){
+    var got={};
+    for(var d in ids){
+      try{
+        var r=await cmd("22"+d), p=r.indexOf("62"+d);
+        if(p<0){ line("in","  "+d+" ("+ids[d]+"): not available"); continue; }
+        var by=bytesOf(r.substr(p+6)); if(lastMF) by=by.slice(0,lastMF.want-3);
+        var asc=by.map(function(x){return x>=32&&x<127?String.fromCharCode(x):"·";}).join("");
+        got[d]=asc;
+        line("in","  "+d+" ("+ids[d]+"): \""+asc+"\"  ["+toHexStr(by)+"]");
+      }catch(e){ line("er","  "+d+": "+e.message); }
+    }
+    return got;
+  }
+  // Both only record the identification if the link they started on is still the current one.
+  async function readIds(g){      // dry run: full identification, feeds the variant check too
+    var got=await readDids({F187:"spare part no.",F18A:"supplier",F191:"HW no.",F195:"SW version",F197:"system name"});
+    if(g===connGen) setIdent(got.F187,got.F195);
+  }
+  async function readIdentity(g){ // step 3: part number + software only; never throws
+    var got={};
+    try{ got=await readDids({F187:"spare part no.",F195:"SW version"}); }catch(_){}
+    if(g===connGen) setIdent(got.F187,got.F195);
+  }
+  // After a good ③ read, ④ and ↺ may both start from that record. A verify mismatch blocks both until reconnect
+  // ("don't retry" stands), so neither can fire again blind.
+  function armWrites(){
+    if(writeMismatch){ var rb=(writeMismatch===LR);   // name the write that actually failed its check
+      $("b4").classList.remove("done"); $("b4").textContent=rb?"④ blocked — reconnect":L4.bad; $("b4").disabled=true;
+      $("brb").classList.remove("done"); $("brb").textContent=rb?LR.bad:"↺ blocked — reconnect"; $("brb").disabled=true; return;
+    }
+    $("b4").classList.remove("done"); $("b4").textContent="④ Write config & reset"; $("b4").disabled=false;
+    $("brb").classList.remove("done"); $("brb").textContent="↺ Restore"; $("brb").disabled=false;
+  }
+  async function readCfg(){
+    if(!dashOnly("③ Read config")) return;
+    var g=connGen;                                  // the link this read started on
+    $("b3").disabled=true;
+    try{
+      cfgBytes=await readF010();
+      line("in","current F010 = "+toHexStr(cfgBytes)+"  (note this value before writing)");
+      line("in","cluster identification:"); await readIdentity(g);
+      if(g!==connGen) throw new Error("the Bluetooth link dropped during the read — reconnect (①), then run ② and ③ again");
+      showCfg(); $("b3").classList.add("done"); $("b3").textContent="③ Read ✓ (re-read anytime)"; $("b3").disabled=false;
+      armWrites();                                  // fresh read → ④ and ↺ armed from this record
+    }catch(e){ line("er",e.message); if(g===connGen) $("b3").disabled=false; }
+  }
+
+  // read-only rehearsal: unlock (if needed) + read + show what would change, without arming ④
+  async function dryRun(){
+    if(!dashOnly("Dry run")) return;
+    var g=connGen;
+    $("bdry").disabled=true;
+    try{
+      if(!$("b2").classList.contains("done")){ line("in","dry run: unlocking first…"); await unlock(MASK_DASH); $("b2").classList.add("done"); $("b2").textContent="② Unlocked ✓"; $("b3").disabled=false; }
+      var b=await readF010();
+      cfgBytes=b; showCfg();                       // enables preview; does NOT touch $("b4").disabled
+      line("in","current F010 = "+toHexStr(b)+" ("+b.length+" bytes)  (note this value before writing)");
+      line("in","cluster identification:"); await readIds(g);
+      showCfg();                                    // now with the variant check
+      var sendOK=true;                              // keep going on failure so every read-only check reports
+      try{ await probeLongSend(); }catch(e){ sendOK=false; line("er",e.message); }
+      var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
+      var nb=b.slice(); nb[1]=(nb[1]|m)&0xFF;
+      line(sendOK?"in":"er","DRY RUN "+(sendOK?"✓":"finished with a blocker")+" — read-only; would change byte1 "+hx(b[1])+" → "+hx(nb[1])+", all other "+(b.length-1)+" bytes kept. Nothing was written; the dry run does not enable ④."+
+        (sendOK?" Run ③ then ④ to make the change for real.":" The write is BLOCKED until the long-message check passes."));
+    }catch(e){ line("er",e.message); }
+    $("bdry").disabled=false;
+  }
+
+  async function writeCfg(){
+    if(!cfgBytes){return;}
+    if(!dashOnly("④ Write config")) return;
+    var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
+    if(m===0){ alert("Tick grips and/or seat first."); return; }
+    if(!fcPairs){ line("er","④ blocked: the adapter didn't accept the flow-control pairs at connect, so it can't send the write. Reconnect (①) and check the log."); return; }
+    var nb=cfgBytes.slice(); nb[1]=(nb[1]|m)&0xFF;
+    // nothing to change: don't write (and don't let an already-coded record become the rollback "original")
+    if(toHexStr(nb)===toHexStr(cfgBytes)){ line("in","④ nothing to write: byte1 is already "+hx(nb[1])+", the ticked bits are set"); return; }
+    var v=variantNote(nb.length);
+    var note=v.ok ? "\n\n✓ "+v.text+"." : "\n\n⚠ "+v.text+".";
+    if(!confirm("Write F010 = "+toHexStr(nb)+" ("+nb.length+" bytes) then reset the cluster?\nOriginal was "+toHexStr(cfgBytes)+".\nKeep the battery on a charger."+note)) return;
+    if(!v.ok && !confirm("⚠ UNCONFIRMED CLUSTER\n\n"+v.text+".\n\nThe heated grip and seat bits have only been verified on the clusters listed in the documentation. On another variant the same bits may control a different option.\n\nWrite anyway, at your own risk?")) return;
+    rememberOriginal(cfgBytes);                     // the record before the first write, for ↺ Restore
+    await writeRecord(nb,$("b4"),L4);
+  }
+
+  // ---- rollback: write back the record the cluster held before the first ④ ----
+  var ORIG_KEY="cf800-heating-coder.F010.original";
+  function storedOriginal(){ try{ return localStorage.getItem(ORIG_KEY)||""; }catch(_){ return ""; } }
+  var sessionOrig="";             // the record before this page's first ④ (what we name when storage is blocked)
+  function rememberOriginal(b){   // set once, never overwritten: a second ④ must not replace the true original
+    var so=storedOriginal(), first=!sessionOrig;
+    if(first) sessionOrig=so||toHexStr(b);
+    if(!so){
+      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","rollback original saved on this phone: "+sessionOrig+" — check it matches the F010 you read before your first write"); }
+      catch(_){ if(first) line("er","couldn't save the rollback original on this phone (browser storage blocked) — keep "+sessionOrig+" yourself: it's the record before this page's first ④ (if you wrote on an earlier visit, use the first \"current F010\" value from that log)"); }
+    }
+    if(!$("orig").value.trim()) $("orig").value=sessionOrig;
+  }
+  async function restoreOrig(){
+    if(!cfgBytes) return;
+    if(!dashOnly("↺ Restore")) return;
+    if(!fcPairs){ line("er","↺ blocked: the adapter didn't accept the flow-control pairs at connect, so it can't send the write. Reconnect (①) and check the log."); return; }
+    var h=$("orig").value.replace(/[\s:,-]/g,"").toUpperCase();
+    if(!/^([0-9A-F]{2})+$/.test(h)){ line("er","↺ Restore: enter the original record as hex, as logged on the \"current F010\" line before your first write (e.g. 7300…)"); return; }
+    var ob=bytesOf(h);
+    if(ob.length!==cfgBytes.length){ line("er","↺ Restore refused: the original is "+ob.length+" bytes but the cluster's record is "+cfgBytes.length+" bytes — wrong value pasted?"); return; }
+    if(h===toHexStr(cfgBytes)){ line("in","↺ the cluster already holds the value in the box ("+h+") — nothing to restore"); return; }
+    var diff=[]; ob.forEach(function(x,i){ if(x!==cfgBytes[i]) diff.push("byte"+i+" "+hx(cfgBytes[i])+"→"+hx(x)); });
+    var warn=diff.length>1?"\n\n⚠ "+diff.length+" bytes differ, but ④ only ever changes byte 1. Make sure this really is your original before continuing.":"";
+    if(!confirm("Restore F010 = "+h+" ("+ob.length+" bytes) then reset the cluster?\nCluster now holds "+toHexStr(cfgBytes)+".\nChanges: "+diff.join(", ")+".\nKeep the battery on a charger."+warn)) return;
+    await writeRecord(ob,$("brb"),LR);
+  }
+
+  // Shared by ④ and ↺: re-unlock, prove the long send, write `nb` with STPX, reset, re-read and compare.
+  // Afterwards both stay disabled until a fresh ③ read (armWrites), unless nothing reached the cluster.
+  var L4={busy:"④ Written — verifying…", ok:"④ Done ✓ verified — power-cycle & test", bad:"④ Write NOT verified — see log",
+          unv:"④ Written, unverified — re-check with ③", unk:"④ Write unconfirmed — run ③ first", nores:"④ Written, not reset — power-cycle, then ③"};
+  var LR={busy:"↺ Restored — verifying…", ok:"↺ Restored ✓ verified", bad:"↺ Restore NOT verified — see log",
+          unv:"↺ Restored, unverified — re-check with ③", unk:"↺ Restore unconfirmed — run ③ first", nores:"↺ Restored, not reset — power-cycle, then ③"};
+  async function writeRecord(nb,btn,L){
+    var g=connGen;                                  // the link this write started on
+    function sameLink(){ if(g!==connGen) throw new Error("the Bluetooth link dropped — stopping here"); }
+    $("b4").disabled=true; $("brb").disabled=true; $("b3").disabled=true; $("bdry").disabled=true;   // nothing else talks to the cluster meanwhile
+    var stage="prep";                               // prep → write (outcome unknown) → reset (write accepted)
+    try{
+      // the extended session from ② has likely hit its S3 timeout by now (no tester-present) — redo it
+      line("in","re-entering session & unlock right before the write");
+      await unlock(MASK_DASH); sameLink();
+      await probeLongSend(); sameLink();            // prove the multi-frame send path right before using it
+      stage="write";
+      var r=await cmd(stpx("2EF010"+toHexStr(nb),3000),15000);   // 3 + record bytes (11 for 8) > 7 → multi-frame → STPX
+      if(r.indexOf("6EF010")<0){
+        var n=neg(r), ae=adapterErr(r);
+        if(/\?|FCRXTIMEOUT/.test(r)) stage="prep";  // nothing complete reached the cluster: safe to retry
+        else if(n && n!=="78" && n!=="72" && /^(7F2E78)*7F2E/.test(r)) stage="prep";   // the cluster refused it (72 = programming failure: unknown)
+        throw new Error("write failed"+(n?" (NRC "+n+")":ae?": "+ae:" ("+r+")")+(stage==="prep"?" — nothing was stored":""));
+      }
+      stage="reset";
+      line("in","write accepted");
+      sameLink();
+      r=await cmd("1101");                          // ecu reset
+      if(r.indexOf("5101")<0){ line("er","reset not confirmed ("+r+") — power-cycle manually"); }
+      else line("in","reset OK");
+      cfgBytes=nb; showCfg();
+      btn.classList.add("done"); btn.textContent=L.busy;
+      await verifyWrite(nb,btn,L,g);                // re-read F010 and confirm the whole record stuck
+    }catch(e){
+      line("er",e.message);
+      var live=(g===connGen);                       // after a drop the buttons belong to the next connection: leave them
+      if(stage==="write"){                          // the full write may have gone out: don't let it be fired blind again
+        line("er","The cluster may or may not have stored the new record. Don't write again yet: run ③ Read to see what it holds now (④ and ↺ re-arm after a good read).");
+        if(live) btn.textContent=L.unk;
+      }else if(stage==="reset"){
+        line("er","The write WAS accepted; only the reset failed. Power-cycle the bike, then run ② and ③ to confirm the new bits.");
+        if(live) btn.textContent=L.nores;
+      }else if(live) armWrites();                   // nothing was stored: the same record is still current
+      else line("er","The link dropped before the write went out — nothing was written. Reconnect (①), then run ② and ③.");
+    }finally{
+      if(wc && g===connGen){ $("b3").disabled=false; $("bdry").disabled=false; }
+    }
+  }
+
+  async function verifyWrite(expected,btn,L,g){
+    try{
+      await new Promise(function(res){setTimeout(res,2000);});   // let the cluster finish rebooting
+      if(g!==connGen) throw new Error("the Bluetooth link dropped");
+      await applyHeader();
+      var b;
+      try{ b=await readF010(); }
+      catch(_){ await unlock(MASK_DASH); b=await readF010(); }     // read may need a fresh unlock after reset
+      line("in","re-read F010 = "+toHexStr(b));
+      if(toHexStr(b)===toHexStr(expected)){
+        line("in","✓ VERIFIED — whole record matches what was written (byte1 "+hx(b[1])+")");
+        cfgBytes=b; showCfg();
+        btn.textContent=L.ok;
+      }else{
+        writeMismatch=L;
+        line("er","✗ MISMATCH — cluster reads "+toHexStr(b)+", expected "+toHexStr(expected)+". The change did not stick as written. Don't retry; use Copy log and report it. (④ and ↺ stay blocked until you reconnect.)");
+        btn.textContent=L.bad; btn.classList.remove("done"); btn.disabled=true;
+      }
+    }catch(e){
+      line("er","could not verify (re-read failed: "+e.message+") — power-cycle and run ③ to confirm manually");
+      if(g===connGen) btn.textContent=L.unv;
+    }
+  }
+
+  // raw console + header switch
+  $("seg").addEventListener("click",function(e){var b=e.target.closest("button");if(!b)return;
+    [].forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});
+    b.setAttribute("aria-pressed","true"); TXID=b.dataset.tx; RXID=b.dataset.rx;
+    ACTMASK=(TXID==="715")?MASK_BCM:MASK_DASH;   // mask must match the selected module
+    if($("b2").classList.contains("done")){ $("b2").classList.remove("done"); $("b2").disabled=false; $("b2").textContent="② Enter session & unlock"; }
+    if(wc){applyHeader().then(function(){line("in","target → req 0x"+TXID+" resp 0x"+RXID+", mask "+toHexStr(ACTMASK)+" (re-run ② Unlock for this module)");});}
+  });
+  $("braw").addEventListener("click",async function(){ var c=$("raw").value.trim(); if(!c||!wc)return; try{await cmd(c);}catch(e){line("er",e.message);} });
+
+  $("b1").addEventListener("click",connect);
+  $("b2").addEventListener("click",doUnlock);
+  $("b3").addEventListener("click",readCfg);
+  $("b4").addEventListener("click",writeCfg);
+  $("brb").addEventListener("click",restoreOrig);
+  $("orig").value=storedOriginal();                 // the pre-write record this phone saved, if any
+  $("bdry").addEventListener("click",dryRun);
+  $("grips").addEventListener("change",preview);
+  $("seat").addEventListener("change",preview);
+
+  $("ack").checked=ackStored();
+  $("ack").addEventListener("change",function(){ ackSave($("ack").checked); b1Gate(); });
+  b1Gate();
+  $("ver").textContent=VERSION;
+  $("copylog").addEventListener("click",function(){
+    var t=$("log").textContent;
+    function done(){ line("in","log copied to the clipboard"); }
+    function fallback(){
+      try{ var ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0";
+        document.body.appendChild(ta); ta.select(); var ok=document.execCommand("copy"); document.body.removeChild(ta);
+        if(ok) done(); else throw new Error("copy refused"); }
+      catch(_){ line("er","couldn't copy automatically — select the log text and copy it manually"); }
+    }
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,fallback); else fallback();
+  });
+
+  // self-check: prove the key routine against both known vectors (DASH + BCM) before any hardware use
+  (function(){
+    var dk=toHexStr(seedToKey([0x11,0x22,0x33,0x44],MASK_DASH)), dok=(dk==="C024115D");
+    var bk=toHexStr(seedToKey([0x11,0x22,0x33,0x44],MASK_BCM)),  bok=(bk==="801941AE");
+    try{console.log("key selfcheck — DASH",dk,dok?"OK":"FAIL(expect C024115D)","| BCM",bk,bok?"OK":"FAIL(expect 801941AE)");}catch(_){}
+    line("in",PRODUCT+" "+VERSION);
+    var so=storedOriginal(); if(so) line("in","rollback original saved on this phone: "+so);
+    if(dok&&bok){ line("in","key self-check OK (DASH "+dk+", BCM "+bk+")"); }
+    else { line("er","KEY SELF-CHECK FAILED — DASH "+dk+(dok?"":" (expect C024115D)")+", BCM "+bk+(bok?"":" (expect 801941AE)")+" — do not use this build"); }
+  })();
+})();
+</script>
+</body>
+</html>
