@@ -40,7 +40,7 @@ The tool can also read other instrument clusters. If the part number or the leng
 
 Open <https://untiring1337.github.io/cfmoto-web-coding/> in Chrome or Edge on your Android phone. Read the notice at the top of the page. Then select the check box in the *Before you start* section. When you select this check box, you accept that you are fully responsible for all changes that you make to your motorcycle. You cannot select *① Connect to OBDLink CX* until you select this check box.
 
-Do the steps below in sequence. When a step is complete, its button shows ✓. If a step fails, read the error message in the log.
+Do the steps below in sequence. After each step, read the result below the button of that step. The status bar above step 1 stays at the top of the screen. It also shows the latest result. A ✓ result means that the step is complete. If the result shows ⚠ or ✗, do the instructions in the result. If the result does not show an instruction, do the step again. If the problem continues, select *Copy log* and report the problem. The log at the bottom of the page shows all details.
 
 1. **Connect.** Make sure that the battery charger is connected to the motorcycle. Set the ignition switch to ON. Do not start the engine. Connect the OBDLink CX adapter to the diagnostic connector.
 
@@ -49,15 +49,15 @@ Do the steps below in sequence. When a step is complete, its button shows ✓. I
 3. **Read configuration.** Select *③ Read configuration*. The tool reads the identification of the instrument cluster and the configuration record. It shows the status (on or off) of the heated grips and the heated seat in the configuration record. It also shows ✓ for a confirmed variant or ⚠ for an unconfirmed instrument cluster. Before the first write, keep a copy of the `current F010` value from the log. You can use this value with *↺ Restore*.
 4. **Select and write.** The *Heated grips* and *Heated seat* check boxes are selected by default. To enable only one function, clear the check box of the other function.
 
-   **Caution:** Do not set the ignition switch to OFF during the write procedure. Do not disconnect the adapter during the write procedure. If you do one of these actions, the configuration in the instrument cluster can be unknown or incomplete. The write procedure starts when you select *OK* in the last confirmation dialog. It ends when the ④ button shows ✓ or the log shows an error.
+   **Caution:** Do not set the ignition switch to OFF during the write procedure. Do not disconnect the adapter during the write procedure. If you do one of these actions, the configuration in the instrument cluster can be unknown or incomplete. The write procedure starts when you select *OK* in the last confirmation dialog. It ends when the result below the ④ button shows ✓, ⚠ or ✗.
 
    Select *④ Write configuration and reset*. The tool shows a confirmation dialog with the new `F010` value and the value that the instrument cluster contains now. If these values are correct, select *OK*. If they are not correct, select *Cancel*. If a second dialog shows *⚠ UNCONFIRMED INSTRUMENT CLUSTER*, select *OK* only if you accept the risk.
 
    The tool then unlocks the instrument cluster again. It tests if the adapter can send a multi-frame message (long-message test). Then it writes the configuration record and resets the instrument cluster. Then it reads the configuration record again and compares it with the written value.
 
-When the ④ button shows ✓, set the ignition switch to OFF. Wait a few seconds. Then set the ignition switch to ON again. The menu of the instrument cluster then shows the option for each function that you enabled. Test each function that you enabled.
+When the result below the ④ button shows ✓ Verified, set the ignition switch to OFF. Wait a few seconds. Then set the ignition switch to ON again. The menu of the instrument cluster then shows the option for each function that you enabled. Test each function that you enabled.
 
-If the ④ button does not show ✓, read the log. Then do the instructions in the log and on the ④ button.
+If the result below the ④ button shows ⚠ or ✗, do the instructions in that result. Do not write again before you read the result.
 
 We recommend that you do a **dry run** before you do step 4 for the first time. After step 1, select *↪ Dry run (read-only)* below the *③ Read configuration* button. The dry run does steps 2 and 3. It also tests if the adapter can send a multi-frame message (long-message test). It does not write to the instrument cluster and does not make step 4 available. After a dry run, do step 3 before you do step 4.
 
