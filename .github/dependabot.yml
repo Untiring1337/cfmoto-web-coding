@@ -1,0 +1,24 @@
+version: 2
+
+updates:
+  # GitHub Actions used by the workflows (pinned to commit SHAs).
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      github-actions:
+        patterns: ["*"]
+
+  # Test dependencies (Playwright). The site itself has no dependencies.
+  - package-ecosystem: npm
+    directory: /tests
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      test-dependencies:
+        patterns: ["*"]

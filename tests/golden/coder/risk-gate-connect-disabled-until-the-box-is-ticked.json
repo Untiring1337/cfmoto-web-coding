@@ -1,0 +1,215 @@
+{
+ "sent": [
+  "ATZ",
+  "ATE0",
+  "ATL0",
+  "ATS0",
+  "ATH0",
+  "ATSP6",
+  "ATCAF1",
+  "ATAT1",
+  "STI",
+  "STDI",
+  "ATSH714",
+  "ATCRA794",
+  "ATFCSH714",
+  "ATFCSD300000",
+  "ATFCSM1",
+  "STCFCPC",
+  "STCFCPA 714,794",
+  "STCFCPA 715,795"
+ ],
+ "confirms": [],
+ "alerts": [],
+ "timers": [
+  {
+   "ms": 8000,
+   "at": 0
+  },
+  {
+   "ms": 5000,
+   "at": 1
+  },
+  {
+   "ms": 5000,
+   "at": 2
+  },
+  {
+   "ms": 5000,
+   "at": 3
+  },
+  {
+   "ms": 5000,
+   "at": 4
+  },
+  {
+   "ms": 5000,
+   "at": 5
+  },
+  {
+   "ms": 5000,
+   "at": 6
+  },
+  {
+   "ms": 5000,
+   "at": 7
+  },
+  {
+   "ms": 5000,
+   "at": 8
+  },
+  {
+   "ms": 5000,
+   "at": 9
+  },
+  {
+   "ms": 5000,
+   "at": 10
+  },
+  {
+   "ms": 5000,
+   "at": 11
+  },
+  {
+   "ms": 5000,
+   "at": 12
+  },
+  {
+   "ms": 5000,
+   "at": 13
+  },
+  {
+   "ms": 5000,
+   "at": 14
+  },
+  {
+   "ms": 5000,
+   "at": 15
+  },
+  {
+   "ms": 5000,
+   "at": 16
+  },
+  {
+   "ms": 5000,
+   "at": 17
+  }
+ ],
+ "log": [
+  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | The key self-check found no errors (DASH C024115D, BCM 801941AE).",
+  "in | The tool is connected to OBDLink CX.",
+  "tx | » ATZ",
+  "rx | « ELM327 v1.4b\\r\\r",
+  "tx | » ATE0",
+  "rx | « OK\\r\\r",
+  "tx | » ATL0",
+  "rx | « OK\\r\\r",
+  "tx | » ATS0",
+  "rx | « OK\\r\\r",
+  "tx | » ATH0",
+  "rx | « OK\\r\\r",
+  "tx | » ATSP6",
+  "rx | « OK\\r\\r",
+  "tx | » ATCAF1",
+  "rx | « OK\\r\\r",
+  "tx | » ATAT1",
+  "rx | « OK\\r\\r",
+  "tx | » STI",
+  "rx | « STN2310 v5.8.1\\r\\r",
+  "tx | » STDI",
+  "rx | « OBDLink CX r1.0\\r\\r",
+  "tx | » ATSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATCRA794",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSD300000",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSM1",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPC",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 714,794",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 715,795",
+  "rx | « OK\\r\\r"
+ ],
+ "stat": "The OBDLink CX adapter is connected and ready.",
+ "dot": "dot on",
+ "last": {
+  "cls": "last ok",
+  "text": "Step ①: ✓ The adapter is connected and ready. Next, do step ②."
+ },
+ "res": {
+  "r1": {
+   "cls": "res ok",
+   "text": "✓ The adapter is connected and ready. Next, do step ②."
+  },
+  "r2": {
+   "cls": "res",
+   "text": ""
+  },
+  "r3": {
+   "cls": "res",
+   "text": ""
+  },
+  "rD": {
+   "cls": "res",
+   "text": ""
+  },
+  "r4": {
+   "cls": "res",
+   "text": ""
+  },
+  "rR": {
+   "cls": "res",
+   "text": ""
+  }
+ },
+ "buttons": {
+  "b1": {
+   "text": "① Connected ✓",
+   "disabled": false,
+   "cls": "step done"
+  },
+  "b2": {
+   "text": "② Start session and unlock",
+   "disabled": false,
+   "cls": "step"
+  },
+  "b3": {
+   "text": "③ Read configuration",
+   "disabled": true,
+   "cls": "step"
+  },
+  "b4": {
+   "text": "④ Write configuration and reset",
+   "disabled": true,
+   "cls": "step"
+  },
+  "bdry": {
+   "text": "↪ Dry run (read-only)",
+   "disabled": false,
+   "cls": "step ghost"
+  },
+  "brb": {
+   "text": "↺ Restore",
+   "disabled": true,
+   "cls": "step ghost"
+  }
+ },
+ "cfgv": "",
+ "prev": "",
+ "inputs": {
+  "orig": "",
+  "raw": "",
+  "ack": true,
+  "grips": true,
+  "seat": true
+ },
+ "storage": {
+  "cf800-heating-coder.ack": "1"
+ }
+}
