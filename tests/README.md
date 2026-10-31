@@ -4,12 +4,17 @@ These tests open the real pages in Chromium and replace Web Bluetooth with a sim
 
 ## Run the tests
 
+Requirements: Node.js 26 (the version in `tests/.nvmrc`) and npm 11 or later.
+
 ```sh
 cd tests
+nvm use            # optional: selects the Node.js version from .nvmrc
 npm ci
 npx playwright install chromium
 npm test
 ```
+
+`npm ci` installs the exact Playwright version from `package-lock.json`. To use a Chromium that is already installed instead of the downloaded one, set `CHROMIUM_EXECUTABLE` to its path.
 
 Options for `node run.js`:
 
@@ -20,6 +25,14 @@ Options for `node run.js`:
 | `--update-golden` | Write new golden snapshots. Use this only for an intended change. |
 
 GitHub Actions runs all simulations for each pull request and for each push to `main` (`.github/workflows/ci.yml`).
+
+## Dependencies
+
+The site itself has no dependencies. The tests use one: Playwright, at an exact version with a lock file.
+
+- The workflow pins each GitHub Action to a full commit SHA.
+- Dependabot (`.github/dependabot.yml`) proposes updates for the GitHub Actions and for the test dependencies once a week. Before it proposes a new release, it waits 7 days.
+- CI uses the Node.js version in `tests/.nvmrc`: the current Active LTS.
 
 ## Golden snapshots
 

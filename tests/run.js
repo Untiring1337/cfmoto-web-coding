@@ -41,7 +41,8 @@ function firstDiff(a, b, where = '') {
 }
 
 (async () => {
-  const browser = await chromium.launch();
+  // CHROMIUM_EXECUTABLE lets a local machine use an installed Chromium instead of the one Playwright downloads.
+  const browser = await chromium.launch(process.env.CHROMIUM_EXECUTABLE ? { executablePath: process.env.CHROMIUM_EXECUTABLE } : {});
   const jobs = [];
   for (const suite of SUITES) {
     const seen = {};
