@@ -11,7 +11,7 @@ const { chromium } = require('playwright');
 const { runScenario } = require('./sim/harness');
 
 const SUITES = [
-  { key: 'coder', scenarios: require('./coder/scenarios'), mockPath: path.join(__dirname, 'sim', 'coder-mock.js'), pagePath: '/index.html' },
+  { key: 'coder', scenarios: require('./coder/scenarios'), mockPath: path.join(__dirname, 'sim', 'coder-mock.js'), pageFile: 'index.html' },
 ];
 
 const args = process.argv.slice(2);
@@ -42,7 +42,12 @@ function firstDiff(a, b, where = '') {
 
 (async () => {
   // CHROMIUM_EXECUTABLE lets a local machine use an installed Chromium instead of the one Playwright downloads.
-  const browser = await chromium.launch(process.env.CHROMIUM_EXECUTABLE ? { executablePath: process.env.CHROMIUM_EXECUTABLE } : {});
+  // Chromium for Linux has Web Bluetooth off; Chrome for Android has it on. With it on, Chromium also applies the
+  // "bluetooth" Permissions-Policy feature from site/_headers. The mock replaces navigator.bluetooth in all cases.
+  const browser = await chromium.launch({
+    args: ['--enable-features=WebBluetooth'],
+    ...(process.env.CHROMIUM_EXECUTABLE ? { executablePath: process.env.CHROMIUM_EXECUTABLE } : {}),
+  });
   const jobs = [];
   for (const suite of SUITES) {
     const seen = {};

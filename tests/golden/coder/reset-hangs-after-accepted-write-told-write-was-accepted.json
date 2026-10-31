@@ -215,7 +215,7 @@
   "tx | » 22F195",
   "rx | « 7F2231\\r\\r",
   "in |   F195 (software version): not available",
-  "in | The tool saved the original F010 value in this browser for ↺ Restore: 12003456789ABCDE. Make sure that this value is the same as the \"current F010\" value from before your first write.",
+  "in | The tool saved the original F010 value in this browser for ↺ Restore: 12003456789ABCDE. Make sure that this value is the same as the \"current F010\" value from before your first write. If you used this tool at the earlier address untiring1337.github.io/cfmoto-web-coding, your original F010 value is saved at that address.",
   "in | The tool does step ② again immediately before the write.",
   "tx | » 1003",
   "rx | « 5003003201F4\\r\\r",

@@ -1,17 +1,21 @@
-name: Tests
+name: CI
 
+# Branch flow (CONTRIBUTING.md): feature branch -> pull request into dev -> preview on GitHub Pages ->
+# release pull request dev -> main -> production on Cloudflare Workers. Both deploys run only after all checks pass.
 on:
-  push:
-    branches: [main]
   pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-# A newer push to the same branch or pull request cancels the run that is still in progress.
+# For pull requests, a newer push cancels the run in progress. Pushes to main and dev queue instead, so a deploy is
+# never stopped while it runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   simulations:
@@ -28,12 +32,157 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: tests/.nvmrc
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: tests/package-lock.json
       - name: Install test dependencies
         run: npm ci --no-audit --no-fund
       - name: Install Chromium for the pinned Playwright version
-        run: npx playwright install --with-deps chromium
+        run: npm exec --no -- playwright install --with-deps chromium
       - name: Run simulations and compare with golden snapshots
         run: npm test -- --jobs 4
+
+  site-checks:
+    name: Site checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Release pull requests into main come from dev
+        if: github.event_name == 'pull_request' && github.base_ref == 'main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+          REPO: ${{ github.repository }}
+        run: |
+          if [ "$HEAD_REF" = dev ] && [ "$HEAD_REPO" = "$REPO" ]; then exit 0; fi
+          # Until the dev branch exists (first release only), a pull request from another branch is accepted.
+          if ! err=$(gh api "repos/$REPO/branches/dev" --silent 2>&1); then
+            case "$err" in
+              *"HTTP 404"*) echo "::warning::The dev branch does not exist yet. This pull request is accepted as the first release."; exit 0 ;;
+              *) echo "::error::Could not check for the dev branch: $err"; exit 1 ;;
+            esac
+          fi
+          echo "::error::Pull requests into main must come from the dev branch of this repository (this one comes from $HEAD_REPO:$HEAD_REF). Open the pull request into dev."
+          exit 1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install wrangler
+        run: npm ci --no-audit --no-fund
+      - name: Check the site files
+        run: node tests/site-check.mjs static
+      - name: Check the Worker configuration
+        run: npm exec --no -- wrangler deploy --dry-run
+      - name: Check the responses from Cloudflare's asset server (wrangler dev)
+        run: node tests/site-check.mjs local
+
+  deploy-production:
+    name: Deploy to production (Cloudflare Workers)
+    needs: [simulations, site-checks]
+    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment:
+      name: production
+      url: ${{ steps.origin.outputs.origin }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install wrangler
+        run: npm ci --no-audit --no-fund
+      - name: Read the production origin
+        id: origin
+        run: |
+          origin=$(sed -n 's/^ *var PRODUCTION_ORIGIN = "\(https:[^"]*\)";.*/\1/p' site/index.html)
+          test -n "$origin"
+          echo "origin=$origin" >> "$GITHUB_OUTPUT"
+      - name: Deploy
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.json
+          WRANGLER_SEND_METRICS: "false"
+        run: npm exec --no -- wrangler deploy --message "main ${GITHUB_SHA::7}"
+      - name: Check that the deploy went to the production origin
+        env:
+          ORIGIN: ${{ steps.origin.outputs.origin }}
+          OUTPUT: ${{ runner.temp }}/wrangler-output.json
+        run: |
+          node -e '
+            const lines = require("fs").readFileSync(process.env.OUTPUT, "utf8").trim().split("\n").map(l => JSON.parse(l));
+            const d = lines.filter(l => l.type === "deploy").pop();
+            if (!d) throw new Error("wrangler wrote no deploy record");
+            console.log("Version " + d.version_id + " deployed to: " + (d.targets || []).join(", "));
+            if (!(d.targets || []).some(t => t.replace(/\/$/, "") === process.env.ORIGIN)) {
+              console.log("::error::The Worker is not served at the production origin " + process.env.ORIGIN + ". Make sure that PRODUCTION_ORIGIN in site/index.html agrees with the workers.dev subdomain of the Cloudflare account.");
+              process.exit(1);
+            }'
+      - name: Check the production responses
+        run: node tests/site-check.mjs production
+      - name: Roll back to the previous version
+        if: failure() && steps.deploy.outcome == 'success'
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: "false"
+        run: |
+          npm exec --no -- wrangler rollback --yes --message "Production check failed for main ${GITHUB_SHA::7}"
+          echo "::error::The production check failed. Production was rolled back to the previous version. Revert the change on main."
+
+  deploy-preview:
+    name: Deploy the dev preview (GitHub Pages)
+    needs: [simulations, site-checks]
+    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - name: Copy the site and stamp the build ID
+        run: |
+          mkdir -p "$RUNNER_TEMP/pages"
+          cp -R site/. "$RUNNER_TEMP/pages/"
+          # GitHub Pages cannot apply site/_headers; it would be served as a plain file.
+          rm "$RUNNER_TEMP/pages/_headers"
+          sed -i "s|<!--BUILD-->local<!--/BUILD-->|<!--BUILD-->dev ${GITHUB_SHA::7}<!--/BUILD-->|" "$RUNNER_TEMP/pages/index.html"
+          grep -q "<!--BUILD-->dev ${GITHUB_SHA::7}<!--/BUILD-->" "$RUNNER_TEMP/pages/index.html"
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: ${{ runner.temp }}/pages
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

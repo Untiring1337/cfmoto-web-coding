@@ -1,7 +1,10 @@
 // Scenarios for the heated grip & seat coder (index.html), run against tests/sim/coder-mock.js.
 // Each entry is [name, mock configuration, async steps(t)]. See tests/sim/harness.js for the helper API.
 'use strict';
+const fs = require('fs');
+const path = require('path');
 const { assert } = require('../sim/harness');
+const { SITE } = require('../sim/serve');
 
 const scenarios = [
   ['happy path: connect, dry run, read, STPX write, verify', {}, async t => {
@@ -420,6 +423,65 @@ scenarios.push(
     const al = await t.page.evaluate(() => window.__alerts);
     assert(al.length === 1 && /Select "Heated grips", "Heated seat", or both/.test(al[0]), 'alert: ' + JSON.stringify(al));
     assert((await t.sent()).length === n, 'nothing sent');
+  }],
+);
+
+// ---- Hosting: production headers and the preview banner ----
+// The released tool is served only from PRODUCTION_ORIGIN (one constant in site/index.html). Every other address,
+// such as the GitHub Pages dev preview, shows the preview banner. site/_headers applies to every response in all scenarios.
+const PROD = /var PRODUCTION_ORIGIN = "(https:\/\/[^"]+)"/.exec(fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'))[1];
+const PREVIEW = { origin: 'https://untiring1337.github.io', basePath: '/cfmoto-web-coding/', pageFile: '' };
+const SAVED = '73000000000000000000000000000000';
+const BANNER = t => t.page.evaluate(() => ({
+  shown: getComputedStyle(document.getElementById('pv')).display !== 'none',
+  noindex: !!document.querySelector('meta[name="robots"][content="noindex"]'),
+  saved: document.getElementById('pvorig').hidden ? null : document.getElementById('pvval').textContent,
+  link: document.getElementById('pvlink').href,
+  canonical: document.querySelector('link[rel="canonical"]').href,
+  build: document.getElementById('pvbuild').textContent,
+}));
+const CONNECT_DRY = async t => {
+  await t.click('b1'); await t.until(/connected and ready/); await t.click('bdry'); await t.until(/DRY RUN/);
+  assert(/DRY RUN \(read-only\) ✓/.test(await t.logText()), 'dry run should pass');
+};
+
+scenarios.push(
+  ['production headers: Bluetooth and clipboard allowed, other device features blocked', {}, async t => {
+    const fp = await t.page.evaluate(() => Object.fromEntries(
+      ['bluetooth', 'clipboard-write', 'camera', 'microphone', 'geolocation', 'usb', 'serial', 'hid', 'payment']
+        .map(f => [f, document.featurePolicy.allowsFeature(f)])));
+    assert(fp.bluetooth && fp['clipboard-write'], 'allowed: ' + JSON.stringify(fp));
+    for (const f of ['camera', 'microphone', 'geolocation', 'usb', 'serial', 'hid', 'payment']) assert(fp[f] === false, f + ' must be blocked: ' + JSON.stringify(fp));
+    await CONNECT_DRY(t);
+  }],
+  ['preview banner on the local test server', {}, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.noindex && b.saved === null && b.build === 'local', 'banner: ' + JSON.stringify(b));
+    assert(b.link === PROD + '/' && b.canonical === PROD + '/', 'links: ' + JSON.stringify(b));
+  }],
+  ['preview banner on the GitHub Pages address; the tool works below the base path', PREVIEW, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.noindex && b.saved === null, 'banner: ' + JSON.stringify(b));
+    assert(t.page.url() === PREVIEW.origin + PREVIEW.basePath, 'url: ' + t.page.url());
+    await CONNECT_DRY(t);
+  }],
+  ['production origin: no banner, page can be indexed', { origin: PROD }, async t => {
+    const b = await BANNER(t);
+    assert(!b.shown && !b.noindex, 'banner: ' + JSON.stringify(b));
+    await CONNECT_DRY(t);
+  }],
+  ['preview with a saved original: the banner shows it and Copy puts it on the clipboard', { ...PREVIEW, storage: { 'cf800-heating-coder.F010.original': SAVED } }, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.saved === SAVED, 'banner: ' + JSON.stringify(b));
+    await t.click('pvcopy');
+    await t.page.waitForFunction(() => document.getElementById('pvcopy').textContent === 'Copied', null, { timeout: 5000 });
+    const clip = await t.page.evaluate(() => navigator.clipboard.readText());
+    assert(clip === SAVED, 'clipboard: ' + clip);
+  }],
+  ['production with a saved original: the banner stays hidden', { origin: PROD, storage: { 'cf800-heating-coder.F010.original': SAVED } }, async t => {
+    const b = await BANNER(t);
+    assert(!b.shown && b.saved === null, 'banner: ' + JSON.stringify(b));
+    assert((await t.page.inputValue('#orig')) === SAVED, 'the saved original is still in the ↺ Restore field');
   }],
 );
 
