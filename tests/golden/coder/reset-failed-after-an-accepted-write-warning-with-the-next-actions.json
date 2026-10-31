@@ -1,0 +1,313 @@
+{
+ "sent": [
+  "ATZ",
+  "ATE0",
+  "ATL0",
+  "ATS0",
+  "ATH0",
+  "ATSP6",
+  "ATCAF1",
+  "ATAT1",
+  "STI",
+  "STDI",
+  "ATSH714",
+  "ATCRA794",
+  "ATFCSH714",
+  "ATFCSD300000",
+  "ATFCSM1",
+  "STCFCPC",
+  "STCFCPA 714,794",
+  "STCFCPA 715,795",
+  "1003",
+  "2701",
+  "2702C024115D",
+  "22F010",
+  "22F187",
+  "22F195",
+  "1003",
+  "2701",
+  "2702C024115D",
+  "STPX d:22F010F010F010F010,t:1000",
+  "STPX d:2EF01073300000000000000000000000000000,t:3000",
+  "1101"
+ ],
+ "confirms": [
+  "Write F010 = 73300000000000000000000000000000 (16 bytes) and then reset the instrument cluster?\nThe instrument cluster now contains 73000000000000000000000000000000.\nKeep the battery charger connected to the motorcycle.\n\n✓ Confirmed variant: CF800-11H instrument cluster, part number 6WW9-171000-8000 (configuration record of 16 bytes)."
+ ],
+ "alerts": [],
+ "timers": [
+  {
+   "ms": 8000,
+   "at": 0
+  },
+  {
+   "ms": 5000,
+   "at": 1
+  },
+  {
+   "ms": 5000,
+   "at": 2
+  },
+  {
+   "ms": 5000,
+   "at": 3
+  },
+  {
+   "ms": 5000,
+   "at": 4
+  },
+  {
+   "ms": 5000,
+   "at": 5
+  },
+  {
+   "ms": 5000,
+   "at": 6
+  },
+  {
+   "ms": 5000,
+   "at": 7
+  },
+  {
+   "ms": 5000,
+   "at": 8
+  },
+  {
+   "ms": 5000,
+   "at": 9
+  },
+  {
+   "ms": 5000,
+   "at": 10
+  },
+  {
+   "ms": 5000,
+   "at": 11
+  },
+  {
+   "ms": 5000,
+   "at": 12
+  },
+  {
+   "ms": 5000,
+   "at": 13
+  },
+  {
+   "ms": 5000,
+   "at": 14
+  },
+  {
+   "ms": 5000,
+   "at": 15
+  },
+  {
+   "ms": 5000,
+   "at": 16
+  },
+  {
+   "ms": 5000,
+   "at": 17
+  },
+  {
+   "ms": 5000,
+   "at": 18
+  },
+  {
+   "ms": 5000,
+   "at": 19
+  },
+  {
+   "ms": 5000,
+   "at": 20
+  },
+  {
+   "ms": 5000,
+   "at": 21
+  },
+  {
+   "ms": 5000,
+   "at": 22
+  },
+  {
+   "ms": 5000,
+   "at": 23
+  },
+  {
+   "ms": 5000,
+   "at": 24
+  },
+  {
+   "ms": 5000,
+   "at": 25
+  },
+  {
+   "ms": 5000,
+   "at": 26
+  },
+  {
+   "ms": 8000,
+   "at": 27
+  },
+  {
+   "ms": 15000,
+   "at": 28
+  },
+  {
+   "ms": 5000,
+   "at": 29
+  }
+ ],
+ "log": [
+  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | The key self-check found no errors (DASH C024115D, BCM 801941AE).",
+  "in | The tool is connected to OBDLink CX.",
+  "tx | » ATZ",
+  "rx | « ELM327 v1.4b\\r\\r",
+  "tx | » ATE0",
+  "rx | « OK\\r\\r",
+  "tx | » ATL0",
+  "rx | « OK\\r\\r",
+  "tx | » ATS0",
+  "rx | « OK\\r\\r",
+  "tx | » ATH0",
+  "rx | « OK\\r\\r",
+  "tx | » ATSP6",
+  "rx | « OK\\r\\r",
+  "tx | » ATCAF1",
+  "rx | « OK\\r\\r",
+  "tx | » ATAT1",
+  "rx | « OK\\r\\r",
+  "tx | » STI",
+  "rx | « STN2310 v5.8.1\\r\\r",
+  "tx | » STDI",
+  "rx | « OBDLink CX r1.0\\r\\r",
+  "tx | » ATSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATCRA794",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSD300000",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSM1",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPC",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 714,794",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 715,795",
+  "rx | « OK\\r\\r",
+  "tx | » 1003",
+  "rx | « 5003003201F4\\r\\r",
+  "tx | » 2701",
+  "rx | « 670111223344\\r\\r",
+  "tx | » 2702C024115D",
+  "rx | « 6702\\r\\r",
+  "in | Security access is granted.",
+  "tx | » 22F010",
+  "rx | « 013\\r0:62F010730000\\r1:00000000000000\\r2:000000000000AA\\r\\r",
+  "in | current F010 = 73000000000000000000000000000000  (Before you write, keep a copy of this value.)",
+  "in | Identification of the instrument cluster:",
+  "tx | » 22F187",
+  "rx | « 017\\r0:62F187365757\\r1:392D3137313030\\r2:302D3830303020\\r3:202020AAAAAAAA\\r\\r",
+  "in |   F187 (part number): \"6WW9-171000-8000    \"  [365757392D3137313030302D3830303020202020]",
+  "tx | » 22F195",
+  "rx | « 00D\\r0:62F19553572E\\r1:312E30322E3032\\r\\r",
+  "in |   F195 (software version): \"SW.1.02.02\"  [53572E312E30322E3032]",
+  "in | The tool saved the original F010 value in this browser for ↺ Restore: 73000000000000000000000000000000. Make sure that this value is the same as the \"current F010\" value from before your first write.",
+  "in | The tool does step ② again immediately before the write.",
+  "tx | » 1003",
+  "rx | « 5003003201F4\\r\\r",
+  "tx | » 2701",
+  "rx | « 670111223344\\r\\r",
+  "tx | » 2702C024115D",
+  "rx | « 6702\\r\\r",
+  "in | Security access is granted.",
+  "tx | » STPX d:22F010F010F010F010,t:1000",
+  "rx | « 7F2213\\r\\r",
+  "in | The long-message test passed. The instrument cluster replied to a multi-frame request of 9 bytes.",
+  "tx | » STPX d:2EF01073300000000000000000000000000000,t:3000",
+  "rx | « 6EF010\\r\\r",
+  "in | The instrument cluster accepted the write.",
+  "tx | » 1101",
+  "er | The tool did not receive a complete reply from the adapter before the timeout. The tool did not receive the '>' prompt.",
+  "er | The instrument cluster accepted the write. Only the reset failed. Set the ignition switch to OFF, then to ON. Do step ① again. Then do steps ② and ③ to make sure that the instrument cluster contains the new configuration record."
+ ],
+ "stat": "The OBDLink CX adapter is connected and ready.",
+ "dot": "dot on",
+ "last": {
+  "cls": "last warn",
+  "text": "Step ④: ⚠ The instrument cluster accepted the write, but the reset failed. Set the ignition switch to OFF, then to ON. Then do steps ①, ② and ③."
+ },
+ "res": {
+  "r1": {
+   "cls": "res ok",
+   "text": "✓ The adapter is connected and ready. Next, do step ②."
+  },
+  "r2": {
+   "cls": "res ok",
+   "text": "✓ Security access is granted. Next, do step ③."
+  },
+  "r3": {
+   "cls": "res ok",
+   "text": "✓ The read is complete. Heated grips: off. Heated seat: off. Next, select the functions. Then do step ④."
+  },
+  "rD": {
+   "cls": "res",
+   "text": ""
+  },
+  "r4": {
+   "cls": "res warn",
+   "text": "⚠ The instrument cluster accepted the write, but the reset failed. Set the ignition switch to OFF, then to ON. Then do steps ①, ② and ③."
+  },
+  "rR": {
+   "cls": "res",
+   "text": ""
+  }
+ },
+ "buttons": {
+  "b1": {
+   "text": "① Connected ✓",
+   "disabled": false,
+   "cls": "step done"
+  },
+  "b2": {
+   "text": "② Unlocked ✓",
+   "disabled": true,
+   "cls": "step done"
+  },
+  "b3": {
+   "text": "③ Read ✓ (you can read again)",
+   "disabled": false,
+   "cls": "step done"
+  },
+  "b4": {
+   "text": "④ Written, reset failed",
+   "disabled": true,
+   "cls": "step"
+  },
+  "bdry": {
+   "text": "↪ Dry run (read-only)",
+   "disabled": false,
+   "cls": "step ghost"
+  },
+  "brb": {
+   "text": "↺ Restore",
+   "disabled": true,
+   "cls": "step ghost"
+  }
+ },
+ "cfgv": "F010 (16 bytes) = 73000000000000000000000000000000byte 1 = 00 → heated grips off, heated seat off✓ Confirmed variant: CF800-11H instrument cluster, part number 6WW9-171000-8000 (configuration record of 16 bytes).",
+ "prev": "If you do step ④, it will change byte 1 from 00 to 30.",
+ "inputs": {
+  "orig": "73000000000000000000000000000000",
+  "raw": "",
+  "ack": true,
+  "grips": true,
+  "seat": true
+ },
+ "storage": {
+  "cf800-heating-coder.F010.original": "73000000000000000000000000000000",
+  "cf800-heating-coder.ack": "1"
+ }
+}

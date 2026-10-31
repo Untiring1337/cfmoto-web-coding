@@ -1,0 +1,12 @@
+{
+  "name": "cfmoto-web-coding-tests",
+  "private": true,
+  "description": "Browser simulations for the CF800-11H Heated Grip & Seat Coder.",
+  "scripts": {
+    "test": "node run.js",
+    "test:update-golden": "node run.js --update-golden"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}

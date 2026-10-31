@@ -1,0 +1,456 @@
+{
+ "sent": [
+  "ATZ",
+  "ATE0",
+  "ATL0",
+  "ATS0",
+  "ATH0",
+  "ATSP6",
+  "ATCAF1",
+  "ATAT1",
+  "STI",
+  "STDI",
+  "ATSH714",
+  "ATCRA794",
+  "ATFCSH714",
+  "ATFCSD300000",
+  "ATFCSM1",
+  "STCFCPC",
+  "STCFCPA 714,794",
+  "STCFCPA 715,795",
+  "1003",
+  "2701",
+  "2702C024115D",
+  "22F010",
+  "22F187",
+  "22F195",
+  "1003",
+  "2701",
+  "2702C024115D",
+  "STPX d:22F010F010F010F010,t:1000",
+  "STPX d:2EF01012103456789ABCDE,t:3000",
+  "1101",
+  "ATSH714",
+  "ATCRA794",
+  "ATFCSH714",
+  "22F010",
+  "22F010",
+  "22F187",
+  "22F195",
+  "1003",
+  "2701",
+  "2702C024115D",
+  "STPX d:22F010F010F010F010,t:1000",
+  "STPX d:2EF01012303456789ABCDE,t:3000",
+  "1101",
+  "ATSH714",
+  "ATCRA794",
+  "ATFCSH714",
+  "22F010"
+ ],
+ "confirms": [
+  "Write F010 = 12103456789ABCDE (8 bytes) and then reset the instrument cluster?\nThe instrument cluster now contains 12003456789ABCDE.\nKeep the battery charger connected to the motorcycle.\n\n⚠ UNCONFIRMED instrument cluster. The part number (F187) of the instrument cluster is not available.",
+  "⚠ UNCONFIRMED INSTRUMENT CLUSTER\n\nUNCONFIRMED instrument cluster. The part number (F187) of the instrument cluster is not available.\n\nThe bits for the heated grips and the heated seat are confirmed only on the instrument clusters that the documentation lists. On a different variant, the same bits can control a different option.\n\nDo you want to write to this instrument cluster at your own risk?",
+  "Write F010 = 12303456789ABCDE (8 bytes) and then reset the instrument cluster?\nThe instrument cluster now contains 12103456789ABCDE.\nKeep the battery charger connected to the motorcycle.\n\n⚠ UNCONFIRMED instrument cluster. The part number (F187) of the instrument cluster is not available.",
+  "⚠ UNCONFIRMED INSTRUMENT CLUSTER\n\nUNCONFIRMED instrument cluster. The part number (F187) of the instrument cluster is not available.\n\nThe bits for the heated grips and the heated seat are confirmed only on the instrument clusters that the documentation lists. On a different variant, the same bits can control a different option.\n\nDo you want to write to this instrument cluster at your own risk?"
+ ],
+ "alerts": [],
+ "timers": [
+  {
+   "ms": 8000,
+   "at": 0
+  },
+  {
+   "ms": 5000,
+   "at": 1
+  },
+  {
+   "ms": 5000,
+   "at": 2
+  },
+  {
+   "ms": 5000,
+   "at": 3
+  },
+  {
+   "ms": 5000,
+   "at": 4
+  },
+  {
+   "ms": 5000,
+   "at": 5
+  },
+  {
+   "ms": 5000,
+   "at": 6
+  },
+  {
+   "ms": 5000,
+   "at": 7
+  },
+  {
+   "ms": 5000,
+   "at": 8
+  },
+  {
+   "ms": 5000,
+   "at": 9
+  },
+  {
+   "ms": 5000,
+   "at": 10
+  },
+  {
+   "ms": 5000,
+   "at": 11
+  },
+  {
+   "ms": 5000,
+   "at": 12
+  },
+  {
+   "ms": 5000,
+   "at": 13
+  },
+  {
+   "ms": 5000,
+   "at": 14
+  },
+  {
+   "ms": 5000,
+   "at": 15
+  },
+  {
+   "ms": 5000,
+   "at": 16
+  },
+  {
+   "ms": 5000,
+   "at": 17
+  },
+  {
+   "ms": 5000,
+   "at": 18
+  },
+  {
+   "ms": 5000,
+   "at": 19
+  },
+  {
+   "ms": 5000,
+   "at": 20
+  },
+  {
+   "ms": 5000,
+   "at": 21
+  },
+  {
+   "ms": 5000,
+   "at": 22
+  },
+  {
+   "ms": 5000,
+   "at": 23
+  },
+  {
+   "ms": 5000,
+   "at": 24
+  },
+  {
+   "ms": 5000,
+   "at": 25
+  },
+  {
+   "ms": 5000,
+   "at": 26
+  },
+  {
+   "ms": 8000,
+   "at": 27
+  },
+  {
+   "ms": 15000,
+   "at": 28
+  },
+  {
+   "ms": 5000,
+   "at": 29
+  },
+  {
+   "ms": 2000,
+   "at": 30
+  },
+  {
+   "ms": 5000,
+   "at": 30
+  },
+  {
+   "ms": 5000,
+   "at": 31
+  },
+  {
+   "ms": 5000,
+   "at": 32
+  },
+  {
+   "ms": 5000,
+   "at": 33
+  },
+  {
+   "ms": 5000,
+   "at": 34
+  },
+  {
+   "ms": 5000,
+   "at": 35
+  },
+  {
+   "ms": 5000,
+   "at": 36
+  },
+  {
+   "ms": 5000,
+   "at": 37
+  },
+  {
+   "ms": 5000,
+   "at": 38
+  },
+  {
+   "ms": 5000,
+   "at": 39
+  },
+  {
+   "ms": 8000,
+   "at": 40
+  },
+  {
+   "ms": 15000,
+   "at": 41
+  },
+  {
+   "ms": 5000,
+   "at": 42
+  },
+  {
+   "ms": 2000,
+   "at": 43
+  },
+  {
+   "ms": 5000,
+   "at": 43
+  },
+  {
+   "ms": 5000,
+   "at": 44
+  },
+  {
+   "ms": 5000,
+   "at": 45
+  },
+  {
+   "ms": 5000,
+   "at": 46
+  }
+ ],
+ "log": [
+  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | The key self-check found no errors (DASH C024115D, BCM 801941AE).",
+  "in | The tool is connected to OBDLink CX.",
+  "tx | » ATZ",
+  "rx | « ELM327 v1.4b\\r\\r",
+  "tx | » ATE0",
+  "rx | « OK\\r\\r",
+  "tx | » ATL0",
+  "rx | « OK\\r\\r",
+  "tx | » ATS0",
+  "rx | « OK\\r\\r",
+  "tx | » ATH0",
+  "rx | « OK\\r\\r",
+  "tx | » ATSP6",
+  "rx | « OK\\r\\r",
+  "tx | » ATCAF1",
+  "rx | « OK\\r\\r",
+  "tx | » ATAT1",
+  "rx | « OK\\r\\r",
+  "tx | » STI",
+  "rx | « STN2310 v5.8.1\\r\\r",
+  "tx | » STDI",
+  "rx | « OBDLink CX r1.0\\r\\r",
+  "tx | » ATSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATCRA794",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSD300000",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSM1",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPC",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 714,794",
+  "rx | « OK\\r\\r",
+  "tx | » STCFCPA 715,795",
+  "rx | « OK\\r\\r",
+  "tx | » 1003",
+  "rx | « 5003003201F4\\r\\r",
+  "tx | » 2701",
+  "rx | « 670111223344\\r\\r",
+  "tx | » 2702C024115D",
+  "rx | « 6702\\r\\r",
+  "in | Security access is granted.",
+  "tx | » 22F010",
+  "rx | « 00B\\r0:62F010120034\\r1:56789ABCDEAAAA\\r\\r",
+  "in | current F010 = 12003456789ABCDE  (Before you write, keep a copy of this value.)",
+  "in | Identification of the instrument cluster:",
+  "tx | » 22F187",
+  "rx | « 7F2231\\r\\r",
+  "in |   F187 (part number): not available",
+  "tx | » 22F195",
+  "rx | « 7F2231\\r\\r",
+  "in |   F195 (software version): not available",
+  "in | The tool saved the original F010 value in this browser for ↺ Restore: 12003456789ABCDE. Make sure that this value is the same as the \"current F010\" value from before your first write.",
+  "in | The tool does step ② again immediately before the write.",
+  "tx | » 1003",
+  "rx | « 5003003201F4\\r\\r",
+  "tx | » 2701",
+  "rx | « 670111223344\\r\\r",
+  "tx | » 2702C024115D",
+  "rx | « 6702\\r\\r",
+  "in | Security access is granted.",
+  "tx | » STPX d:22F010F010F010F010,t:1000",
+  "rx | « 7F2213\\r\\r",
+  "in | The long-message test passed. The instrument cluster replied to a multi-frame request of 9 bytes.",
+  "tx | » STPX d:2EF01012103456789ABCDE,t:3000",
+  "rx | « 6EF010\\r\\r",
+  "in | The instrument cluster accepted the write.",
+  "tx | » 1101",
+  "rx | « 5101\\r\\r",
+  "in | The instrument cluster confirmed the reset.",
+  "tx | » ATSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATCRA794",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSH714",
+  "rx | « OK\\r\\r",
+  "tx | » 22F010",
+  "rx | « 00B\\r0:62F010121034\\r1:56789ABCDEAAAA\\r\\r",
+  "in | F010 after the write = 12103456789ABCDE",
+  "in | ✓ VERIFIED. The complete configuration record is the same as the value that the tool wrote (byte 1 = 10).",
+  "tx | » 22F010",
+  "rx | « 00B\\r0:62F010121034\\r1:56789ABCDEAAAA\\r\\r",
+  "in | current F010 = 12103456789ABCDE  (Before you write, keep a copy of this value.)",
+  "in | Identification of the instrument cluster:",
+  "tx | » 22F187",
+  "rx | « 7F2231\\r\\r",
+  "in |   F187 (part number): not available",
+  "tx | » 22F195",
+  "rx | « 7F2231\\r\\r",
+  "in |   F195 (software version): not available",
+  "in | The tool does step ② again immediately before the write.",
+  "tx | » 1003",
+  "rx | « 5003003201F4\\r\\r",
+  "tx | » 2701",
+  "rx | « 670111223344\\r\\r",
+  "tx | » 2702C024115D",
+  "rx | « 6702\\r\\r",
+  "in | Security access is granted.",
+  "tx | » STPX d:22F010F010F010F010,t:1000",
+  "rx | « 7F2213\\r\\r",
+  "in | The long-message test passed. The instrument cluster replied to a multi-frame request of 9 bytes.",
+  "tx | » STPX d:2EF01012303456789ABCDE,t:3000",
+  "rx | « 6EF010\\r\\r",
+  "in | The instrument cluster accepted the write.",
+  "tx | » 1101",
+  "rx | « 5101\\r\\r",
+  "in | The instrument cluster confirmed the reset.",
+  "tx | » ATSH714",
+  "rx | « OK\\r\\r",
+  "tx | » ATCRA794",
+  "rx | « OK\\r\\r",
+  "tx | » ATFCSH714",
+  "rx | « OK\\r\\r",
+  "tx | » 22F010",
+  "rx | « 00B\\r0:62F010123034\\r1:56789ABCDEAAAA\\r\\r",
+  "in | F010 after the write = 12303456789ABCDE",
+  "in | ✓ VERIFIED. The complete configuration record is the same as the value that the tool wrote (byte 1 = 30)."
+ ],
+ "stat": "The OBDLink CX adapter is connected and ready.",
+ "dot": "dot on",
+ "last": {
+  "cls": "last ok",
+  "text": "Step ④: ✓ Verified. The configuration record is the same as the written value. Next, set the ignition switch to OFF. Wait a few seconds. Then set the ignition switch to ON. Then test the functions."
+ },
+ "res": {
+  "r1": {
+   "cls": "res ok",
+   "text": "✓ The adapter is connected and ready. Next, do step ②."
+  },
+  "r2": {
+   "cls": "res ok",
+   "text": "✓ Security access is granted. Next, do step ③."
+  },
+  "r3": {
+   "cls": "res",
+   "text": ""
+  },
+  "rD": {
+   "cls": "res",
+   "text": ""
+  },
+  "r4": {
+   "cls": "res ok",
+   "text": "✓ Verified. The configuration record is the same as the written value. Next, set the ignition switch to OFF. Wait a few seconds. Then set the ignition switch to ON. Then test the functions."
+  },
+  "rR": {
+   "cls": "res",
+   "text": ""
+  }
+ },
+ "buttons": {
+  "b1": {
+   "text": "① Connected ✓",
+   "disabled": false,
+   "cls": "step done"
+  },
+  "b2": {
+   "text": "② Unlocked ✓",
+   "disabled": true,
+   "cls": "step done"
+  },
+  "b3": {
+   "text": "③ Read ✓ (you can read again)",
+   "disabled": false,
+   "cls": "step done"
+  },
+  "b4": {
+   "text": "④ Done ✓ verified",
+   "disabled": true,
+   "cls": "step done"
+  },
+  "bdry": {
+   "text": "↪ Dry run (read-only)",
+   "disabled": false,
+   "cls": "step ghost"
+  },
+  "brb": {
+   "text": "↺ Restore",
+   "disabled": true,
+   "cls": "step ghost"
+  }
+ },
+ "cfgv": "F010 (8 bytes) = 12303456789ABCDEbyte 1 = 30 → heated grips on, heated seat on⚠ UNCONFIRMED instrument cluster. The part number (F187) of the instrument cluster is not available. Write to this instrument cluster only if you accept the risk. The bits for the heated grips and the heated seat are confirmed only on the instrument clusters that the documentation lists. On a different variant, the same bits can control a different option.",
+ "prev": "The selected functions are already enabled. Step ④ is not necessary.",
+ "inputs": {
+  "orig": "12003456789ABCDE",
+  "raw": "",
+  "ack": true,
+  "grips": true,
+  "seat": true
+ },
+ "storage": {
+  "cf800-heating-coder.F010.original": "12003456789ABCDE",
+  "cf800-heating-coder.ack": "1"
+ }
+}
