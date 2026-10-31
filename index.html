@@ -47,79 +47,79 @@
 </head>
 <body>
   <div class="disc" role="note">
-    <b>Community project — not affiliated with, authorised by or endorsed by CFMOTO.</b>
-    This tool reads and writes configuration data in your motorcycle's instrument cluster through the diagnostic port. It is provided as is, without warranty of any kind. Changing vehicle configuration may affect your warranty and, if done incorrectly, can leave a module misconfigured. You use this tool entirely at your own risk and are solely responsible for any change made to your vehicle.
+    <b>This community project is independent of CFMOTO. CFMOTO did not approve or endorse it.</b>
+    This tool reads and writes configuration data in the instrument cluster of your motorcycle through the diagnostic connector. This tool is supplied "as is", without warranty of any kind. A change to the configuration of your motorcycle can have an effect on your warranty. If you make the change incorrectly, a module can have an incorrect configuration. You use this tool fully at your own risk. Only you are responsible for all changes that you make to your motorcycle.
   </div>
 
   <h1>CF800-11H Heated Grip &amp; Seat Coder</h1>
-  <p class="sub">Enables the factory heated-grip and heated-seat functions in the instrument cluster, using an OBDLink CX adapter over Bluetooth LE. Every change is read, modified and verified on the device. Before the first write, the original configuration is saved in this browser so that it can be written back with Restore.</p>
+  <p class="sub">This tool enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. For each change, the tool reads the configuration record (F010) from the instrument cluster and changes the necessary bits. Then the tool writes the configuration record, reads it again and compares it with the written value. Before the tool writes for the first time, it saves the original F010 value in this browser. You can use ↺ Restore to write the original configuration record to the instrument cluster again.</p>
 
   <div class="badbox" id="noble">
-    <b>Web Bluetooth unavailable in this browser.</b> Open this page in <b>Chrome on Android</b> (or Edge/Opera), served over <b>https://</b>. It will not work in Safari/iOS, or from a <code>file://</code> link.
+    <b>Web Bluetooth is not available in this browser.</b> Open this page in <b>Chrome on Android</b>. You can also use Edge or Opera. The page address must start with <b>https://</b>. This tool does not operate in Safari or on iOS. If you open this page from a <code>file://</code> link, this tool does not operate.
   </div>
 
   <div class="card">
     <h2>Before you start</h2>
-    <p class="d">You need an Android phone with Chrome or Edge, an OBDLink CX adapter, and a battery charger connected to the motorcycle for the whole procedure.</p>
-    <label class="chk"><input type="checkbox" id="ack"> I have read the notice above and accept full responsibility for any change I make to my vehicle.</label>
-    <p class="d" style="margin:.4rem 0 0">Required to enable Connect. Remembered on this device.</p>
+    <p class="d">You must have an Android phone with Chrome or Edge, an OBDLink CX adapter and a battery charger. Connect the battery charger to the motorcycle. Keep the battery charger connected until the procedure is complete.</p>
+    <label class="chk"><input type="checkbox" id="ack"> I read the notice above. I accept that I am fully responsible for all changes that I make to my motorcycle.</label>
+    <p class="d" style="margin:.4rem 0 0">You must select this check box before you can do step 1. This browser keeps your selection.</p>
   </div>
 
   <div class="status"><span class="dot" id="dot"></span><span id="stat">Not connected</span></div>
 
   <div class="card">
     <h2>Step 1 — Connect</h2>
-    <p class="d">Switch the ignition on (engine off) with the battery charger connected. Plug the OBDLink CX into the diagnostic port, then connect.</p>
+    <p class="d">Make sure that the battery charger is connected to the motorcycle. Set the ignition switch to ON. Do not start the engine. Connect the OBDLink CX adapter to the diagnostic connector. Then select the ① Connect to OBDLink CX button.</p>
     <button class="step" id="b1" disabled>① Connect to OBDLink CX</button>
   </div>
 
   <div class="card">
     <h2>Step 2 — Unlock</h2>
-    <p class="d">Opens an extended diagnostic session and performs the security-access handshake with the instrument cluster (DASH, 0x714).</p>
-    <button class="step" id="b2" disabled>② Enter session &amp; unlock</button>
+    <p class="d">This step starts an extended diagnostic session with the instrument cluster (DASH, 0x714). Then it unlocks the instrument cluster with the security access handshake.</p>
+    <button class="step" id="b2" disabled>② Start session and unlock</button>
     <div class="val" id="skv" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
     <h2>Step 3 — Read configuration</h2>
-    <p class="d">Reads the cluster's identification (part number <code>F187</code>, software <code>F195</code>) and its complete configuration record (<code>F010</code>), then shows the current heating settings and whether this cluster is a confirmed variant. Always read before writing.</p>
+    <p class="d">This step reads the full configuration record (<code>F010</code>) from the instrument cluster. It also reads the part number (<code>F187</code>) and the software version (<code>F195</code>) of the instrument cluster. Then it shows the current settings for the heated grips and the heated seat. It also shows if this instrument cluster is a confirmed variant. Always do this step before you do step 4 or ↺ Restore.</p>
     <button class="step" id="b3" disabled>③ Read configuration</button>
     <button class="step ghost" id="bdry" disabled style="margin-top:8px">↪ Dry run (read-only)</button>
-    <p class="d" style="margin:.6rem 0 0">The dry run performs steps 2 and 3, reads the cluster's identification, tests the adapter's multi-frame transmit path and shows exactly what <i>would</i> change. It never writes and never enables step 4. Recommended before the first write.</p>
+    <p class="d" style="margin:.6rem 0 0">The dry run does steps 2 and 3. It also reads the identification of the instrument cluster. Then it tests if the adapter can send a multi-frame message (long-message test). Then it shows the exact change that step 4 will make. The dry run never writes to the instrument cluster and never makes step 4 available. We recommend that you do a dry run before you do step 4 for the first time.</p>
     <div class="val" id="cfgv" style="margin-top:8px"></div>
   </div>
 
   <div class="card">
     <h2>Step 4 — Select and write</h2>
-    <p class="d">Unlocks again immediately before writing so the session cannot have expired, confirms that the adapter can transmit the multi-frame write, writes the record, resets the cluster and reads the record back to verify the change.</p>
+    <p class="d">Step 4 unlocks the instrument cluster again immediately before it writes. This makes sure that the diagnostic session is still active. Then step 4 tests if the adapter can send a multi-frame message (long-message test). Then it writes the configuration record and resets the instrument cluster. Then it reads the configuration record again and compares it with the written value. If a check box is not selected, step 4 does not change the bit for that function.</p>
     <label class="chk"><input type="checkbox" id="grips" checked> Heated grips (byte 1, bit 4)</label>
     <label class="chk"><input type="checkbox" id="seat" checked> Heated seat (byte 1, bit 5)</label>
     <div class="val" id="prev" style="margin:6px 0 10px"></div>
-    <button class="step" id="b4" disabled>④ Write config &amp; reset</button>
+    <button class="step" id="b4" disabled>④ Write configuration and reset</button>
   </div>
 
   <div class="card">
     <h2>Rollback — Restore the original configuration</h2>
-    <p class="d">Writes back the configuration record the cluster held before the first write from this device (saved automatically), or a value you enter from an earlier log: the <i>current F010</i> line recorded before your first write. Uses the same verified procedure as step 4. Requires a fresh read (step 3); the length must match.</p>
-    <div class="rowc"><input id="orig" placeholder="original F010, e.g. 7300…" autocapitalize="characters" spellcheck="false"><button class="step ghost" id="brb" style="width:auto;padding:10px 14px" disabled>↺ Restore</button></div>
+    <p class="d">↺ Restore writes the original configuration record to the instrument cluster again. Before step 4 writes for the first time, this tool automatically saves the original F010 value in this browser and shows it in the field. You can also enter the <i>current F010</i> value that an earlier log showed before your first write. ↺ Restore uses the same write procedure as step 4. Before you use ↺ Restore, do step 3. The value in the field must have the same length as the configuration record in the instrument cluster.</p>
+    <div class="rowc"><input id="orig" placeholder="original F010 value, for example 7300…" autocapitalize="characters" spellcheck="false"><button class="step ghost" id="brb" style="width:auto;padding:10px 14px" disabled>↺ Restore</button></div>
   </div>
 
   <div class="card warnbox">
-    Only bits 4 and 5 of byte 1 are changed; every other byte is written back exactly as read. Do not switch off the ignition or disconnect the adapter between the write and the reset. Note the value logged in step 3 before writing. Step 3 also shows whether your cluster is a confirmed variant.
+    Do not set the ignition switch to OFF or disconnect the adapter until step 4 or ↺ Restore is complete. If you do this, the configuration in the instrument cluster can be unknown or incomplete. Before you do step 4, keep a copy of the <i>current F010</i> value that step 3 shows in the log. Step 4 changes only bits 4 and 5 of byte 1. All other bytes keep the values that step 3 read. Step 3 also shows if your instrument cluster is a confirmed variant.
   </div>
 
   <details>
-    <summary>Advanced (experts only) — raw command console &amp; BCM output test</summary>
+    <summary>Advanced (for experts only) — raw command console &amp; BCM output test</summary>
     <div class="warnbox" style="margin:8px 0">
-      <b>Experts only.</b> Commands entered here are sent directly to the vehicle without any of the safety checks used by the guided steps. They are not needed for normal use.
+      <b>Use this section only if you are an expert.</b> This console sends your commands directly to the motorcycle. It does not do any of the safety checks of the guided steps. This console is not necessary for normal use.
     </div>
     <div class="card" style="margin-top:8px">
       <div class="seg" id="seg">
         <button data-tx="714" data-rx="794" aria-pressed="true">DASH 0x714</button>
         <button data-tx="715" data-rx="795" aria-pressed="false">BCM 0x715</button>
       </div>
-      <p class="d">Pick the module (sets both header and security mask), then run <b>② Unlock</b> for it before sending protected commands. Steps 3–4 above are DASH-only and refuse to run while BCM is selected. BCM output test: select BCM, ② Unlock, then I/O-control DID <code>3503</code>; live level <code>22 3503</code> (0/1/2/3 = OFF/MIN/MID/MAX).</p>
-      <div class="rowc"><input id="raw" placeholder="e.g. 223503" autocapitalize="characters"><button class="step ghost" id="braw" style="width:auto;padding:10px 14px">Send</button></div>
+      <p class="d">Select a module to set the header and the security mask for that module. Before you send protected commands to this module, select <b>② Start session and unlock</b>. If BCM is selected, steps 3 and 4, the dry run and ↺ Restore do not start, because they are for DASH only. For the BCM output test, first do the two instructions above for BCM. Then send an I/O control command for DID <code>3503</code>. To read the live output level, send <code>22 3503</code> (0 = OFF, 1 = MIN, 2 = MID, 3 = MAX).</p>
+      <div class="rowc"><input id="raw" placeholder="for example 223503" autocapitalize="characters"><button class="step ghost" id="braw" style="width:auto;padding:10px 14px">Send</button></div>
     </div>
   </details>
 
@@ -132,8 +132,8 @@
   <div class="foot">
     CF800-11H Heated Grip &amp; Seat Coder <span id="ver"></span> ·
     <a href="https://github.com/Untiring1337/cfmoto-web-coding">Source code &amp; issue tracker</a> · MIT License<br>
-    Community project, not affiliated with, authorised by or endorsed by CFMOTO. Provided as is, without warranty; use at your own risk.
-    CFMOTO and all product names are trademarks of their respective owners and are used here for identification only.
+    This community project is independent of CFMOTO. CFMOTO did not approve or endorse it. This tool is supplied "as is", without warranty. You use this tool at your own risk.
+    CFMOTO and all product names are trademarks of their owners. This page uses these names only for identification.
   </div>
 
 <script>
@@ -194,8 +194,8 @@
   // notification can be delivered before the write's acknowledgement resolves, and must not be missed
   // (the old code armed it afterwards, so a fast "OK" was sometimes dropped → "timeout waiting for '>'").
   async function sendRaw(cmd,tmo){
-    if(!wc) throw new Error("not connected");
-    if(waiter) throw new Error("busy — another command is still running");
+    if(!wc) throw new Error("The adapter is not connected.");
+    if(waiter) throw new Error("Another command is not complete. When it is complete, try again.");
     if(desync){ await sleep(700); desync=false; }   // let a late reply from a failed command arrive, then discard it
     rxbuf="";
     var data=new TextEncoder().encode(cmd+"\r");
@@ -203,7 +203,7 @@
     return new Promise(function(resolve,reject){
       var w={ok:resolve,t:null}; waiter=w;
       function fail(err){ if(waiter===w) waiter=null; clearTimeout(w.t); desync=true; reject(err); }
-      w.t=setTimeout(function(){ fail(new Error("timeout waiting for '>'")); }, tmo||5000);
+      w.t=setTimeout(function(){ fail(new Error("The tool did not receive a complete reply from the adapter before the timeout. The tool did not receive the '>' prompt.")); }, tmo||5000);
       (async function(){
         try{ for(var i=0;i<data.length;i+=20){ if(waiter!==w) return; await wc.writeValueWithResponse(data.slice(i,i+20)); } }
         catch(err){ if(waiter===w) fail(err); }
@@ -237,24 +237,24 @@
       try{
         var r=await sendRaw(c,tmo);
         line("rx","« "+r.replace(/\r/g,"\\r").trim());
-        if(/STOPPED/i.test(r)){ desync=true; throw new Error("adapter reported STOPPED — it was interrupted and did not run "+c); }
+        if(/STOPPED/i.test(r)){ desync=true; throw new Error("The adapter replied STOPPED to "+c+". The adapter was interrupted and did not run this command."); }
         return clean(r);
       }catch(e){
         if(k>=tries || !/timeout|STOPPED/.test(e.message)) throw e;
-        line("in","  (no reply to "+c+" — resending, attempt "+(k+1)+" of "+tries+")");
+        line("in","  The tool did not receive a valid reply to "+c+". The tool sends the command again (attempt "+(k+1)+" of "+tries+").");
       }
     }
   }
 
   // ---- connection ----
   function resetSteps(){   // a new connection means a new diagnostic session: everything after ① starts over
-    [["b2","② Enter session & unlock"],["b3","③ Read configuration"],["b4","④ Write config & reset"],["brb","↺ Restore"]].forEach(function(p){
+    [["b2","② Start session and unlock"],["b3","③ Read configuration"],["b4","④ Write configuration and reset"],["brb","↺ Restore"]].forEach(function(p){
       var b=$(p[0]); b.classList.remove("done"); b.textContent=p[1]; b.disabled=true; });
     $("bdry").disabled=true;
   }
   function onDisconnect(){
     connGen++;
-    setStat("disconnected",false); gatt=null; wc=null; nc=null; waiter=null; rxbuf=""; fcPairs=false; writeMismatch=false; clearIdent();
+    setStat("The adapter is disconnected. To connect it again, do step ①.",false); gatt=null; wc=null; nc=null; waiter=null; rxbuf=""; fcPairs=false; writeMismatch=false; clearIdent();
     resetSteps(); $("b1").classList.remove("done"); $("b1").textContent="① Connect to OBDLink CX";
   }
   var connecting=false;
@@ -263,25 +263,25 @@
     connecting=true; $("b1").disabled=true;
     try{
       if(gatt && gatt.connected){
-        line("in","closing the existing connection first");
+        line("in","The tool closes the open connection first.");
         try{ if(nc) nc.removeEventListener("characteristicvaluechanged",onNotify); }catch(_){}
         gatt.disconnect(); onDisconnect();
       }
       waiter=null; rxbuf=""; desync=false; fcPairs=false; writeMismatch=false; clearIdent(); resetSteps();
       cfgBytes=null; showCfg(); $("prev").textContent="";   // a new connection may be a different vehicle: clear the last read
-      setStat("requesting device…");
+      setStat("Select the OBDLink CX adapter in the list of Bluetooth devices.");
       dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:"OBDLink"}],optionalServices:[SVC]});
       dev.removeEventListener("gattserverdisconnected",onDisconnect);
       dev.addEventListener("gattserverdisconnected",onDisconnect);
-      setStat("connecting…");
+      setStat("Wait while the tool connects to the adapter…");
       gatt=await dev.gatt.connect();
       var svc=await gatt.getPrimaryService(SVC);
       wc=await svc.getCharacteristic(CH_WRITE);
       nc=await svc.getCharacteristic(CH_NOTIFY);
       await nc.startNotifications();                 // also triggers pairing (PIN 123456 if asked)
       nc.addEventListener("characteristicvaluechanged",onNotify);
-      line("in","connected to "+(dev.name||"device"));
-      setStat("initialising…",true);
+      line("in","The tool is connected to "+(dev.name||"the adapter")+".");
+      setStat("Wait while the tool prepares the adapter…",true);
       // ELM/STN init: echo off, spaces off, headers off, CAN 11b/500k, auto-format on
       for(var c of ["ATZ","ATE0","ATL0","ATS0","ATH0","ATSP6","ATCAF1","ATAT1"]){ await cmd(c, c==="ATZ"?8000:5000); }
       // adapter identity (asks the adapter only, nothing goes to the bike); tells us which STN commands exist
@@ -291,7 +291,7 @@
       // DASH (0x794→0x714) never sees, so it stops after the first frame. Send FC on the module's request ID.
       for(var f of ["ATFCSD300000","ATFCSM1"]){
         var fr=await cmd(f);
-        if(fr.indexOf("OK")<0) throw new Error(f+" not accepted ("+fr+") — adapter can't do custom flow control; long replies will be cut off");
+        if(fr.indexOf("OK")<0) throw new Error(f+" was not accepted ("+fr+"). The adapter cannot use custom flow control. Multi-frame replies from the module will be incomplete.");
       }
       // Flow control the other way round: when the adapter SENDS a long message (the 2E write, via STPX) it must
       // accept the module's FC frame. By default it expects that on request+8 (0x71C), which the DASH never uses.
@@ -303,25 +303,25 @@
         try{
           for(var p of ["STCFCPC","STCFCPA 714,794","STCFCPA 715,795"]){
             var pr=await cmd(p);
-            if(pr.indexOf("OK")<0){ var pe=new Error(p+" not accepted ("+pr+")"); pe.refused=true; throw pe; }
+            if(pr.indexOf("OK")<0){ var pe=new Error(p+" was not accepted ("+pr+")."); pe.refused=true; throw pe; }
           }
           fcPairs=true;
         }catch(e){
           if(!wc || !(gatt&&gatt.connected)) throw e; // link dropped: that's "connect failed", not an adapter limitation
           pairErr=e;
           if(e.refused) break;                        // the adapter answered, and not with OK: it can't do pairs
-          if(a<3) line("in","  (no reply during flow-control pair setup — redoing it from STCFCPC, attempt "+(a+1)+" of 3)");
+          if(a<3) line("in","  The tool did not receive a valid reply to a flow-control pair command. The tool sends all the flow-control pair commands again, from STCFCPC (attempt "+(a+1)+" of 3).");
         }
       }
       if(!fcPairs){
-        line("er","  "+pairErr.message+(pairErr.refused?" — this adapter can't send long messages":" — the adapter kept not answering")+", so ④ Write stays blocked (reads still work; reconnect to try again)");
+        line("er","  "+pairErr.message+(pairErr.refused?" This adapter cannot send multi-frame messages.":" The tool did not receive a valid reply from the adapter in 3 attempts.")+" For this connection, you cannot use step ④ or ↺ Restore. You can still do step ③ to read the configuration record. To try again, do step ① again.");
         try{ await cmd("STCFCPC"); }catch(_){}      // don't leave a half-built pair list behind (it would starve the BCM of FC)
       }
-      if(!wc || !(gatt&&gatt.connected)) throw new Error("not connected — the Bluetooth link dropped during setup");
-      setStat("connected — CX ready",true);
+      if(!wc || !(gatt&&gatt.connected)) throw new Error("The Bluetooth connection stopped while the tool prepared the adapter.");
+      setStat("The OBDLink CX adapter is connected and ready.",true);
       $("b1").classList.add("done"); $("b1").textContent="① Connected ✓";
       $("b2").disabled=false; $("bdry").disabled=false;
-    }catch(e){ line("er","connect failed: "+e.message); setStat("connect failed",false); }
+    }catch(e){ line("er","The connection failed: "+e.message); setStat("The connection failed. Read the log.",false); }
     finally{ connecting=false; b1Gate(); }
   }
   async function applyHeader(){ await cmd("ATSH"+TXID); await cmd("ATCRA"+RXID); await cmd("ATFCSH"+TXID); }
@@ -333,12 +333,12 @@
   // Adapter (not module) error replies, as they look after clean(): upper case, spaces removed. None of these
   // words can occur inside a hex reply, so a match is always the adapter talking.
   function adapterErr(r){
-    if(r.indexOf("?")>=0) return "adapter rejected the command (?)";
-    if(/FCRXTIMEOUT/.test(r)) return "FC RX TIMEOUT — the module's flow-control frame never reached the adapter, so only the first frame went out";
-    if(/NODATA/.test(r)) return "NO DATA — no reply from the module";
-    if(/CANERROR|BUSBUSY|BUSERROR/.test(r)) return "CAN bus problem ("+r+")";
-    if(/BUFFERFULL|OUTOFMEMORY/.test(r)) return "adapter ran out of memory ("+r+")";
-    if(/DATAERROR|RXERROR/.test(r)) return "garbled reply ("+r+")";
+    if(r.indexOf("?")>=0) return "the adapter did not accept the command (reply '?')";
+    if(/FCRXTIMEOUT/.test(r)) return "FC RX TIMEOUT (the adapter did not receive the flow-control frame from the module, so it sent only the first frame)";
+    if(/NODATA/.test(r)) return "NO DATA (the module did not reply)";
+    if(/CANERROR|BUSBUSY|BUSERROR/.test(r)) return "the adapter reported a CAN bus problem ("+r+")";
+    if(/BUFFERFULL|OUTOFMEMORY/.test(r)) return "the adapter memory is full ("+r+")";
+    if(/DATAERROR|RXERROR/.test(r)) return "the adapter received a reply with errors ("+r+")";
     return null;
   }
   // A message longer than one CAN frame (7 data bytes) needs the STN command STPX: it splits the message into
@@ -350,26 +350,26 @@
 
   async function unlock(mask){
     var r=await cmd("1003");                     // extended session
-    if(r.indexOf("5003")<0){ throw new Error("extended session refused ("+r+")"); }
+    if(r.indexOf("5003")<0){ throw new Error("The module did not start the extended session ("+r+")."); }
     r=await cmd("2701");                          // request seed
     if(r.indexOf("6701")<0){ var n=neg(r);
-      var sm="seed request failed"+(n?" (NRC "+n+")":" ("+r+")");
-      if(n==="37") sm+=" — security is locked out from earlier bad keys; wait before retrying.";
+      var sm="The seed request failed"+(n?" (NRC "+n+").":" ("+r+").");
+      if(n==="37") sm+=" Wait before you try again. Security access is locked because the module received incorrect keys before.";
       var e1=new Error(sm); e1.lockout=(n==="37"); throw e1; }
     var after=r.substr(r.indexOf("6701")+4);
     var seed=bytesOf(after).slice(0,4);
-    if(seed.length<4) throw new Error("short seed: "+after);
-    if(seed[0]===0&&seed[1]===0&&seed[2]===0&&seed[3]===0){ line("in","seed is zero — already unlocked"); return seed; }
+    if(seed.length<4) throw new Error("The seed is too short: "+after);
+    if(seed[0]===0&&seed[1]===0&&seed[2]===0&&seed[3]===0){ line("in","The seed is zero. The module is already unlocked."); return seed; }
     var key=seedToKey(seed,mask);
     $("skv").innerHTML="seed <b>"+toHexStr(seed)+"</b> → key <b>"+toHexStr(key)+"</b>";
     r=await cmd("2702"+toHexStr(key));            // send key
     if(r.indexOf("6702")<0){ var n2=neg(r);
-      var km="key rejected"+(n2?" (NRC "+n2+")":" ("+r+")");
-      if(n2==="35") km+=" — invalid key: the mask/algorithm is wrong for this ECU. Do NOT retry; repeated bad keys can trip a timed lockout.";
-      else if(n2==="36") km+=" — exceeded attempts: the module is now locked. Stop and wait (often ~10 min) before trying again.";
-      else if(n2==="37") km+=" — time delay not expired: a previous lockout is still active. Wait before retrying.";
+      var km="The module did not accept the key"+(n2?" (NRC "+n2+").":" ("+r+").");
+      if(n2==="35") km+=" Do NOT try again. The key is not valid because the mask or the algorithm is incorrect for this module. If you send more incorrect keys, the module can start a timed lockout.";
+      else if(n2==="36") km+=" Stop and wait before you try again. The module is now locked because it received too many incorrect keys. The wait is often approximately 10 minutes.";
+      else if(n2==="37") km+=" Wait before you try again. The time delay of a previous lockout is not complete.";
       var e2=new Error(km); e2.lockout=(n2==="36"||n2==="37"); throw e2; }
-    line("in","security access granted");
+    line("in","Security access is granted.");
     return seed;
   }
 
@@ -378,8 +378,8 @@
     try{ await unlock(ACTMASK); $("b2").classList.add("done"); $("b2").textContent="② Unlocked ✓"; $("b3").disabled=false; }
     catch(e){ line("er",e.message);
       if(e.lockout){ // don't let the user keep hammering a locked module
-        $("b2").textContent="② Locked out — wait, then retry";
-        setTimeout(function(){ if(!$("b2").classList.contains("done")){ $("b2").disabled=false; $("b2").textContent="② Enter session & unlock"; } },60000);
+        $("b2").textContent="② Locked. Wait before you try again.";
+        setTimeout(function(){ if(!$("b2").classList.contains("done")){ $("b2").disabled=false; $("b2").textContent="② Start session and unlock"; } },60000);
       } else { $("b2").disabled=false; }
     }
   }
@@ -387,20 +387,20 @@
   // Is this cluster a confirmed variant? Needs the identification from step 3 (or the dry run) and a matching length.
   function variantNote(len){
     var k=findKnown(ident.part);
-    if(ident.read && k && len===k.len) return {ok:true, text:"Confirmed variant: "+k.model+" cluster "+k.part+" ("+k.len+"-byte record)"};
-    var why= !ident.read ? "cluster not identified yet — run step 3"
-           : !ident.part ? "the cluster's part number (F187) could not be read"
-           : !k          ? "part number "+ident.part+" is not on the confirmed list"
-           :               "unexpected record length: "+len+" bytes (the confirmed "+k.part+" uses "+k.len+")";
-    return {ok:false, text:"UNCONFIRMED cluster — "+why};
+    if(ident.read && k && len===k.len) return {ok:true, text:"Confirmed variant: "+k.model+" instrument cluster, part number "+k.part+" (configuration record of "+k.len+" bytes)"};
+    var why= !ident.read ? "The identification of the instrument cluster is not available. Do step ③"
+           : !ident.part ? "The part number (F187) of the instrument cluster is not available"
+           : !k          ? "Part number "+ident.part+" is not on the list of confirmed variants"
+           :               "The configuration record has "+len+" bytes. The configuration record of the confirmed variant "+k.part+" has "+k.len+" bytes";
+    return {ok:false, text:"UNCONFIRMED instrument cluster. "+why};
   }
   function showCfg(){
     if(!cfgBytes){$("cfgv").textContent="";return;}
     var g=(cfgBytes[1]&0x10)?"on":"off", s=(cfgBytes[1]&0x20)?"on":"off", v=variantNote(cfgBytes.length);
     var vEl=document.createElement("span");      // part numbers come from the vehicle: insert as text, not HTML
     vEl.style.color=v.ok?"var(--ok)":"var(--bad)";
-    vEl.textContent=v.ok ? "✓ "+v.text+"." : "⚠ "+v.text+". The heating bits have only been verified on the clusters listed in the documentation; writing to another variant may set the wrong option.";
-    $("cfgv").innerHTML="F010 ("+cfgBytes.length+" bytes) = <b>"+toHexStr(cfgBytes)+"</b><br>byte1="+hx(cfgBytes[1])+" → grips <b>"+g+"</b>, seat <b>"+s+"</b><br>";
+    vEl.textContent=v.ok ? "✓ "+v.text+"." : "⚠ "+v.text+". Write to this instrument cluster only if you accept the risk. The bits for the heated grips and the heated seat are confirmed only on the instrument clusters that the documentation lists. On a different variant, the same bits can control a different option.";
+    $("cfgv").innerHTML="F010 ("+cfgBytes.length+" bytes) = <b>"+toHexStr(cfgBytes)+"</b><br>byte 1 = "+hx(cfgBytes[1])+" → heated grips <b>"+g+"</b>, heated seat <b>"+s+"</b><br>";
     $("cfgv").appendChild(vEl);
     preview();
   }
@@ -408,20 +408,20 @@
     if(!cfgBytes){$("prev").textContent="";return;}
     var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
     var nb=cfgBytes.slice(); nb[1]=(nb[1]|m)&0xFF;
-    $("prev").innerHTML="will write byte1 "+hx(cfgBytes[1])+" → <b>"+hx(nb[1])+"</b>";
+    $("prev").innerHTML="If you do step ④, it will change byte 1 from "+hx(cfgBytes[1])+" to <b>"+hx(nb[1])+"</b>.";
   }
   function dashOnly(what){ // steps 3–4 must only ever talk to the DASH
     if(TXID==="714") return true;
-    line("er",what+" is DASH-only — select DASH 0x714 in Advanced first (current target 0x"+TXID+")");
+    line("er",what+" works only with the instrument cluster (DASH 0x714). The selected module is 0x"+TXID+". In the Advanced section, select DASH 0x714. Then do this step again.");
     return false;
   }
   async function readF010(){ // pure read, returns the whole record or throws (shared by ③, dry-run, verify)
     var r=await cmd("22F010");
-    if(lastMF && lastMF.got<lastMF.want) throw new Error("reply cut off: got "+lastMF.got+" of "+lastMF.want+" bytes (multi-frame flow-control problem). Nothing was written — do not write.");
-    if(r.indexOf("62F010")<0){ var n=neg(r); throw new Error("read failed"+(n?" (NRC "+n+")":" ("+r+")")); }
+    if(lastMF && lastMF.got<lastMF.want) throw new Error("The reply is not complete. The tool received "+lastMF.got+" of "+lastMF.want+" bytes. This is a multi-frame flow-control problem. The read did not change the instrument cluster. Do not write.");
+    if(r.indexOf("62F010")<0){ var n=neg(r); throw new Error("The read of F010 failed"+(n?" (NRC "+n+")":" ("+r+")")); }
     var b=bytesOf(r.substr(r.indexOf("62F010")+6));
     if(lastMF) b=b.slice(0,lastMF.want-3);       // record length exactly as the cluster declared it
-    if(b.length<8) throw new Error("expected at least 8 bytes, got "+b.length+" ("+r+") — STOP, do not write");
+    if(b.length<8) throw new Error("The configuration record is too short. The tool received "+b.length+" bytes ("+r+"). The minimum is 8 bytes. STOP. Do not write.");
     return b;                                     // keep every byte; the write sends back the same length
   }
 
@@ -429,13 +429,13 @@
   // has to go out as multiple frames, over the same STPX path the write uses; any answer from the cluster
   // means the transmit path works.
   async function probeLongSend(){
-    if(!fcPairs) throw new Error("the adapter didn't accept the flow-control pairs at connect (see log), so it can't send the write. Do not write.");
+    if(!fcPairs) throw new Error("The adapter did not accept the flow-control pairs during step ①. For this reason, the adapter cannot send the write. Do not write. The log shows the cause.");
     var r=await cmd(stpx("22F010F010F010F010",1000),8000);
     var ae=adapterErr(r);
-    if(ae) throw new Error("long-message test failed: "+ae+". The write couldn't be sent. Do not write.");
-    if(lastMF && lastMF.got<lastMF.want) throw new Error("long-message test: reply cut off ("+lastMF.got+"/"+lastMF.want+") — do not write.");
-    if(r.indexOf("62F010")<0 && r.indexOf("7F22")<0) throw new Error("long-message test: no valid answer ("+r+") — the write path is unproven. Do not write.");
-    line("in","multi-frame send OK (cluster answered a 9-byte request)");
+    if(ae) throw new Error("The long-message test failed: "+ae+". The adapter cannot send the write. Do not write.");
+    if(lastMF && lastMF.got<lastMF.want) throw new Error("The long-message test failed. The reply is not complete ("+lastMF.got+" of "+lastMF.want+" bytes). Do not write.");
+    if(r.indexOf("62F010")<0 && r.indexOf("7F22")<0) throw new Error("The long-message test failed. The tool did not receive a valid reply ("+r+"). The tool cannot confirm that the adapter can send the write. Do not write.");
+    line("in","The long-message test passed. The instrument cluster replied to a multi-frame request of 9 bytes.");
   }
 
   // Read-only identification DIDs (standard UDS; unsupported ones just return 7F 22 31). Returns {DID: text} for
@@ -456,73 +456,73 @@
   }
   // Both only record the identification if the link they started on is still the current one.
   async function readIds(g){      // dry run: full identification, feeds the variant check too
-    var got=await readDids({F187:"spare part no.",F18A:"supplier",F191:"HW no.",F195:"SW version",F197:"system name"});
+    var got=await readDids({F187:"part number",F18A:"supplier",F191:"hardware number",F195:"software version",F197:"system name"});
     if(g===connGen) setIdent(got.F187,got.F195);
   }
   async function readIdentity(g){ // step 3: part number + software only; never throws
     var got={};
-    try{ got=await readDids({F187:"spare part no.",F195:"SW version"}); }catch(_){}
+    try{ got=await readDids({F187:"part number",F195:"software version"}); }catch(_){}
     if(g===connGen) setIdent(got.F187,got.F195);
   }
   // After a good ③ read, ④ and ↺ may both start from that record. A verify mismatch blocks both until reconnect
   // ("don't retry" stands), so neither can fire again blind.
   function armWrites(){
     if(writeMismatch){ var rb=(writeMismatch===LR);   // name the write that actually failed its check
-      $("b4").classList.remove("done"); $("b4").textContent=rb?"④ blocked — reconnect":L4.bad; $("b4").disabled=true;
-      $("brb").classList.remove("done"); $("brb").textContent=rb?LR.bad:"↺ blocked — reconnect"; $("brb").disabled=true; return;
+      $("b4").classList.remove("done"); $("b4").textContent=rb?"④ Blocked. Do step ① again.":L4.bad; $("b4").disabled=true;
+      $("brb").classList.remove("done"); $("brb").textContent=rb?LR.bad:"↺ Blocked. Do step ① again."; $("brb").disabled=true; return;
     }
-    $("b4").classList.remove("done"); $("b4").textContent="④ Write config & reset"; $("b4").disabled=false;
+    $("b4").classList.remove("done"); $("b4").textContent="④ Write configuration and reset"; $("b4").disabled=false;
     $("brb").classList.remove("done"); $("brb").textContent="↺ Restore"; $("brb").disabled=false;
   }
   async function readCfg(){
-    if(!dashOnly("③ Read config")) return;
+    if(!dashOnly("③ Read configuration")) return;
     var g=connGen;                                  // the link this read started on
     $("b3").disabled=true;
     try{
       cfgBytes=await readF010();
-      line("in","current F010 = "+toHexStr(cfgBytes)+"  (note this value before writing)");
-      line("in","cluster identification:"); await readIdentity(g);
-      if(g!==connGen) throw new Error("the Bluetooth link dropped during the read — reconnect (①), then run ② and ③ again");
-      showCfg(); $("b3").classList.add("done"); $("b3").textContent="③ Read ✓ (re-read anytime)"; $("b3").disabled=false;
+      line("in","current F010 = "+toHexStr(cfgBytes)+"  (Before you write, keep a copy of this value.)");
+      line("in","Identification of the instrument cluster:"); await readIdentity(g);
+      if(g!==connGen) throw new Error("The Bluetooth connection stopped during the read. Do step ① again. Then do steps ② and ③ again.");
+      showCfg(); $("b3").classList.add("done"); $("b3").textContent="③ Read ✓ (you can read again)"; $("b3").disabled=false;
       armWrites();                                  // fresh read → ④ and ↺ armed from this record
     }catch(e){ line("er",e.message); if(g===connGen) $("b3").disabled=false; }
   }
 
   // read-only rehearsal: unlock (if needed) + read + show what would change, without arming ④
   async function dryRun(){
-    if(!dashOnly("Dry run")) return;
+    if(!dashOnly("↪ Dry run (read-only)")) return;
     var g=connGen;
     $("bdry").disabled=true;
     try{
-      if(!$("b2").classList.contains("done")){ line("in","dry run: unlocking first…"); await unlock(MASK_DASH); $("b2").classList.add("done"); $("b2").textContent="② Unlocked ✓"; $("b3").disabled=false; }
+      if(!$("b2").classList.contains("done")){ line("in","Dry run: the tool does step ② (unlock) first…"); await unlock(MASK_DASH); $("b2").classList.add("done"); $("b2").textContent="② Unlocked ✓"; $("b3").disabled=false; }
       var b=await readF010();
       cfgBytes=b; showCfg();                       // enables preview; does NOT touch $("b4").disabled
-      line("in","current F010 = "+toHexStr(b)+" ("+b.length+" bytes)  (note this value before writing)");
-      line("in","cluster identification:"); await readIds(g);
+      line("in","current F010 = "+toHexStr(b)+" ("+b.length+" bytes)  (Before you write, keep a copy of this value.)");
+      line("in","Identification of the instrument cluster:"); await readIds(g);
       showCfg();                                    // now with the variant check
       var sendOK=true;                              // keep going on failure so every read-only check reports
       try{ await probeLongSend(); }catch(e){ sendOK=false; line("er",e.message); }
       var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
       var nb=b.slice(); nb[1]=(nb[1]|m)&0xFF;
-      line(sendOK?"in":"er","DRY RUN "+(sendOK?"✓":"finished with a blocker")+" — read-only; would change byte1 "+hx(b[1])+" → "+hx(nb[1])+", all other "+(b.length-1)+" bytes kept. Nothing was written; the dry run does not enable ④."+
-        (sendOK?" Run ③ then ④ to make the change for real.":" The write is BLOCKED until the long-message check passes."));
+      line(sendOK?"in":"er","DRY RUN (read-only) "+(sendOK?"✓":"completed with a problem")+". If you do step ④, it will change byte 1 from "+hx(b[1])+" to "+hx(nb[1])+". The other "+(b.length-1)+" bytes will not change. The dry run did not write to the instrument cluster. It does not make step ④ available."+
+        (sendOK?" To make the change, do steps ③ and ④.":" The write stays BLOCKED until the long-message test passes."));
     }catch(e){ line("er",e.message); }
     $("bdry").disabled=false;
   }
 
   async function writeCfg(){
     if(!cfgBytes){return;}
-    if(!dashOnly("④ Write config")) return;
+    if(!dashOnly("④ Write configuration and reset")) return;
     var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
-    if(m===0){ alert("Tick grips and/or seat first."); return; }
-    if(!fcPairs){ line("er","④ blocked: the adapter didn't accept the flow-control pairs at connect, so it can't send the write. Reconnect (①) and check the log."); return; }
+    if(m===0){ alert("Select \"Heated grips\", \"Heated seat\", or both. Then do step ④ again."); return; }
+    if(!fcPairs){ line("er","Step ④ is blocked. The adapter did not accept the flow-control pairs during step ①. Without these pairs, the adapter cannot send the write. Read the errors in the log. Then do step ① again."); return; }
     var nb=cfgBytes.slice(); nb[1]=(nb[1]|m)&0xFF;
     // nothing to change: don't write (and don't let an already-coded record become the rollback "original")
-    if(toHexStr(nb)===toHexStr(cfgBytes)){ line("in","④ nothing to write: byte1 is already "+hx(nb[1])+", the ticked bits are set"); return; }
+    if(toHexStr(nb)===toHexStr(cfgBytes)){ line("in","④ No write is necessary. The value of byte 1 is already "+hx(nb[1])+". The selected bits are already set."); return; }
     var v=variantNote(nb.length);
     var note=v.ok ? "\n\n✓ "+v.text+"." : "\n\n⚠ "+v.text+".";
-    if(!confirm("Write F010 = "+toHexStr(nb)+" ("+nb.length+" bytes) then reset the cluster?\nOriginal was "+toHexStr(cfgBytes)+".\nKeep the battery on a charger."+note)) return;
-    if(!v.ok && !confirm("⚠ UNCONFIRMED CLUSTER\n\n"+v.text+".\n\nThe heated grip and seat bits have only been verified on the clusters listed in the documentation. On another variant the same bits may control a different option.\n\nWrite anyway, at your own risk?")) return;
+    if(!confirm("Write F010 = "+toHexStr(nb)+" ("+nb.length+" bytes) and then reset the instrument cluster?\nThe instrument cluster now contains "+toHexStr(cfgBytes)+".\nKeep the battery charger connected to the motorcycle."+note)) return;
+    if(!v.ok && !confirm("⚠ UNCONFIRMED INSTRUMENT CLUSTER\n\n"+v.text+".\n\nThe bits for the heated grips and the heated seat are confirmed only on the instrument clusters that the documentation lists. On a different variant, the same bits can control a different option.\n\nDo you want to write to this instrument cluster at your own risk?")) return;
     rememberOriginal(cfgBytes);                     // the record before the first write, for ↺ Restore
     await writeRecord(nb,$("b4"),L4);
   }
@@ -535,40 +535,40 @@
     var so=storedOriginal(), first=!sessionOrig;
     if(first) sessionOrig=so||toHexStr(b);
     if(!so){
-      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","rollback original saved on this phone: "+sessionOrig+" — check it matches the F010 you read before your first write"); }
-      catch(_){ if(first) line("er","couldn't save the rollback original on this phone (browser storage blocked) — keep "+sessionOrig+" yourself: it's the record before this page's first ④ (if you wrote on an earlier visit, use the first \"current F010\" value from that log)"); }
+      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","The tool saved the original F010 value in this browser for ↺ Restore: "+sessionOrig+". Make sure that this value is the same as the \"current F010\" value from before your first write."); }
+      catch(_){ if(first) line("er","The tool could not save the original F010 value in this browser, because browser storage is blocked. Keep a copy of this value: "+sessionOrig+". The tool read this value before step ④ wrote for the first time after you opened this page. If you wrote F010 before you opened this page, use the first \"current F010\" value from that earlier log."); }
     }
     if(!$("orig").value.trim()) $("orig").value=sessionOrig;
   }
   async function restoreOrig(){
     if(!cfgBytes) return;
     if(!dashOnly("↺ Restore")) return;
-    if(!fcPairs){ line("er","↺ blocked: the adapter didn't accept the flow-control pairs at connect, so it can't send the write. Reconnect (①) and check the log."); return; }
+    if(!fcPairs){ line("er","↺ Restore is blocked. The adapter did not accept the flow-control pairs during step ①. Without these pairs, the adapter cannot send the write. Read the errors in the log. Then do step ① again."); return; }
     var h=$("orig").value.replace(/[\s:,-]/g,"").toUpperCase();
-    if(!/^([0-9A-F]{2})+$/.test(h)){ line("er","↺ Restore: enter the original record as hex, as logged on the \"current F010\" line before your first write (e.g. 7300…)"); return; }
+    if(!/^([0-9A-F]{2})+$/.test(h)){ line("er","↺ Restore: the field next to ↺ Restore is empty or does not contain a valid hex value. Enter the original F010 value in hex (for example 7300…). Use the \"current F010\" value that the log showed before your first write."); return; }
     var ob=bytesOf(h);
-    if(ob.length!==cfgBytes.length){ line("er","↺ Restore refused: the original is "+ob.length+" bytes but the cluster's record is "+cfgBytes.length+" bytes — wrong value pasted?"); return; }
-    if(h===toHexStr(cfgBytes)){ line("in","↺ the cluster already holds the value in the box ("+h+") — nothing to restore"); return; }
-    var diff=[]; ob.forEach(function(x,i){ if(x!==cfgBytes[i]) diff.push("byte"+i+" "+hx(cfgBytes[i])+"→"+hx(x)); });
-    var warn=diff.length>1?"\n\n⚠ "+diff.length+" bytes differ, but ④ only ever changes byte 1. Make sure this really is your original before continuing.":"";
-    if(!confirm("Restore F010 = "+h+" ("+ob.length+" bytes) then reset the cluster?\nCluster now holds "+toHexStr(cfgBytes)+".\nChanges: "+diff.join(", ")+".\nKeep the battery on a charger."+warn)) return;
+    if(ob.length!==cfgBytes.length){ line("er","↺ Restore is blocked. The value in the field has "+ob.length+" bytes, but the configuration record in the instrument cluster has "+cfgBytes.length+" bytes. Make sure that the value in the field is your original F010 value."); return; }
+    if(h===toHexStr(cfgBytes)){ line("in","↺ No restore is necessary. The instrument cluster already contains the value in the field ("+h+")."); return; }
+    var diff=[]; ob.forEach(function(x,i){ if(x!==cfgBytes[i]) diff.push("byte "+i+" from "+hx(cfgBytes[i])+" to "+hx(x)); });
+    var warn=diff.length>1?"\n\n⚠ Before you continue, make sure that the value in the field is your original F010 value. "+diff.length+" bytes are different, but step ④ changes only byte 1.":"";
+    if(!confirm("Restore F010 = "+h+" ("+ob.length+" bytes) and then reset the instrument cluster?\nThe instrument cluster now contains "+toHexStr(cfgBytes)+".\nChanges: "+diff.join(", ")+".\nKeep the battery charger connected to the motorcycle."+warn)) return;
     await writeRecord(ob,$("brb"),LR);
   }
 
   // Shared by ④ and ↺: re-unlock, prove the long send, write `nb` with STPX, reset, re-read and compare.
   // Afterwards both stay disabled until a fresh ③ read (armWrites), unless nothing reached the cluster.
-  var L4={busy:"④ Written — verifying…", ok:"④ Done ✓ verified — power-cycle & test", bad:"④ Write NOT verified — see log",
-          unv:"④ Written, unverified — re-check with ③", unk:"④ Write unconfirmed — run ③ first", nores:"④ Written, not reset — power-cycle, then ③"};
-  var LR={busy:"↺ Restored — verifying…", ok:"↺ Restored ✓ verified", bad:"↺ Restore NOT verified — see log",
-          unv:"↺ Restored, unverified — re-check with ③", unk:"↺ Restore unconfirmed — run ③ first", nores:"↺ Restored, not reset — power-cycle, then ③"};
+  var L4={busy:"④ Written. Wait for the verification…", ok:"④ Done ✓ verified. Set the ignition switch to OFF, then to ON. Then test the selected functions.", bad:"④ Write NOT verified. Read the log.",
+          unv:"④ Written, not verified. Do step ③ again.", unk:"④ Write result unknown. Do step ③ before you write again.", nores:"④ Written, but the reset failed. Set the ignition switch to OFF, then to ON. Then do step ③."};
+  var LR={busy:"↺ Restored. Wait for the verification…", ok:"↺ Restored ✓ verified", bad:"↺ Restore NOT verified. Read the log.",
+          unv:"↺ Restored, not verified. Do step ③ again.", unk:"↺ Restore result unknown. Do step ③ before you write again.", nores:"↺ Restored, but the reset failed. Set the ignition switch to OFF, then to ON. Then do step ③."};
   async function writeRecord(nb,btn,L){
     var g=connGen;                                  // the link this write started on
-    function sameLink(){ if(g!==connGen) throw new Error("the Bluetooth link dropped — stopping here"); }
+    function sameLink(){ if(g!==connGen) throw new Error("The Bluetooth connection stopped. The procedure stops here."); }
     $("b4").disabled=true; $("brb").disabled=true; $("b3").disabled=true; $("bdry").disabled=true;   // nothing else talks to the cluster meanwhile
     var stage="prep";                               // prep → write (outcome unknown) → reset (write accepted)
     try{
       // the extended session from ② has likely hit its S3 timeout by now (no tester-present) — redo it
-      line("in","re-entering session & unlock right before the write");
+      line("in","The tool does step ② again immediately before the write.");
       await unlock(MASK_DASH); sameLink();
       await probeLongSend(); sameLink();            // prove the multi-frame send path right before using it
       stage="write";
@@ -577,14 +577,14 @@
         var n=neg(r), ae=adapterErr(r);
         if(/\?|FCRXTIMEOUT/.test(r)) stage="prep";  // nothing complete reached the cluster: safe to retry
         else if(n && n!=="78" && n!=="72" && /^(7F2E78)*7F2E/.test(r)) stage="prep";   // the cluster refused it (72 = programming failure: unknown)
-        throw new Error("write failed"+(n?" (NRC "+n+")":ae?": "+ae:" ("+r+")")+(stage==="prep"?" — nothing was stored":""));
+        throw new Error("The write failed"+(n?" (NRC "+n+")":ae?": "+ae:" ("+r+")")+(stage==="prep"?". The instrument cluster did not store the new configuration record.":"."));
       }
       stage="reset";
-      line("in","write accepted");
+      line("in","The instrument cluster accepted the write.");
       sameLink();
       r=await cmd("1101");                          // ecu reset
-      if(r.indexOf("5101")<0){ line("er","reset not confirmed ("+r+") — power-cycle manually"); }
-      else line("in","reset OK");
+      if(r.indexOf("5101")<0){ line("er","The instrument cluster did not confirm the reset ("+r+"). After the verification is complete, set the ignition switch to OFF, then to ON."); }
+      else line("in","The instrument cluster confirmed the reset.");
       cfgBytes=nb; showCfg();
       btn.classList.add("done"); btn.textContent=L.busy;
       await verifyWrite(nb,btn,L,g);                // re-read F010 and confirm the whole record stuck
@@ -592,13 +592,13 @@
       line("er",e.message);
       var live=(g===connGen);                       // after a drop the buttons belong to the next connection: leave them
       if(stage==="write"){                          // the full write may have gone out: don't let it be fired blind again
-        line("er","The cluster may or may not have stored the new record. Don't write again yet: run ③ Read to see what it holds now (④ and ↺ re-arm after a good read).");
+        line("er","Do not write again now. The tool does not know if the instrument cluster stored the new configuration record. Do step ③ to read the configuration record that the instrument cluster contains now. Step ④ and ↺ Restore become available again after step ③ reads the configuration record correctly.");
         if(live) btn.textContent=L.unk;
       }else if(stage==="reset"){
-        line("er","The write WAS accepted; only the reset failed. Power-cycle the bike, then run ② and ③ to confirm the new bits.");
+        line("er","The instrument cluster accepted the write. Only the reset failed. Set the ignition switch to OFF, then to ON. Do step ① again. Then do steps ② and ③ to make sure that the instrument cluster contains the new configuration record.");
         if(live) btn.textContent=L.nores;
       }else if(live) armWrites();                   // nothing was stored: the same record is still current
-      else line("er","The link dropped before the write went out — nothing was written. Reconnect (①), then run ② and ③.");
+      else line("er","The Bluetooth connection stopped before the tool sent the write. The instrument cluster did not store the new configuration record. Do step ① again. Then do steps ② and ③ again.");
     }finally{
       if(wc && g===connGen){ $("b3").disabled=false; $("bdry").disabled=false; }
     }
@@ -607,23 +607,23 @@
   async function verifyWrite(expected,btn,L,g){
     try{
       await new Promise(function(res){setTimeout(res,2000);});   // let the cluster finish rebooting
-      if(g!==connGen) throw new Error("the Bluetooth link dropped");
+      if(g!==connGen) throw new Error("the Bluetooth connection stopped");
       await applyHeader();
       var b;
       try{ b=await readF010(); }
       catch(_){ await unlock(MASK_DASH); b=await readF010(); }     // read may need a fresh unlock after reset
-      line("in","re-read F010 = "+toHexStr(b));
+      line("in","F010 after the write = "+toHexStr(b));
       if(toHexStr(b)===toHexStr(expected)){
-        line("in","✓ VERIFIED — whole record matches what was written (byte1 "+hx(b[1])+")");
+        line("in","✓ VERIFIED. The complete configuration record is the same as the value that the tool wrote (byte 1 = "+hx(b[1])+").");
         cfgBytes=b; showCfg();
         btn.textContent=L.ok;
       }else{
         writeMismatch=L;
-        line("er","✗ MISMATCH — cluster reads "+toHexStr(b)+", expected "+toHexStr(expected)+". The change did not stick as written. Don't retry; use Copy log and report it. (④ and ↺ stay blocked until you reconnect.)");
+        line("er","✗ MISMATCH. The instrument cluster contains "+toHexStr(b)+", but the tool wrote "+toHexStr(expected)+". Do not write again. Select the Copy log button. Then use the issue tracker link at the bottom of this page to report the problem. Step ④ and ↺ Restore stay blocked until you do step ① again.");
         btn.textContent=L.bad; btn.classList.remove("done"); btn.disabled=true;
       }
     }catch(e){
-      line("er","could not verify (re-read failed: "+e.message+") — power-cycle and run ③ to confirm manually");
+      line("er","The tool could not verify the write. It could not read F010 again ("+e.message+"). Set the ignition switch to OFF, then to ON. Then do step ③ to make sure that the instrument cluster contains the new configuration record.");
       if(g===connGen) btn.textContent=L.unv;
     }
   }
@@ -633,8 +633,8 @@
     [].forEach.call(this.querySelectorAll("button"),function(x){x.setAttribute("aria-pressed","false");});
     b.setAttribute("aria-pressed","true"); TXID=b.dataset.tx; RXID=b.dataset.rx;
     ACTMASK=(TXID==="715")?MASK_BCM:MASK_DASH;   // mask must match the selected module
-    if($("b2").classList.contains("done")){ $("b2").classList.remove("done"); $("b2").disabled=false; $("b2").textContent="② Enter session & unlock"; }
-    if(wc){applyHeader().then(function(){line("in","target → req 0x"+TXID+" resp 0x"+RXID+", mask "+toHexStr(ACTMASK)+" (re-run ② Unlock for this module)");});}
+    if($("b2").classList.contains("done")){ $("b2").classList.remove("done"); $("b2").disabled=false; $("b2").textContent="② Start session and unlock"; }
+    if(wc){applyHeader().then(function(){line("in","Target module: request ID 0x"+TXID+", response ID 0x"+RXID+", mask "+toHexStr(ACTMASK)+". Do step ② for this module.");});}
   });
   $("braw").addEventListener("click",async function(){ var c=$("raw").value.trim(); if(!c||!wc)return; try{await cmd(c);}catch(e){line("er",e.message);} });
 
@@ -654,12 +654,12 @@
   $("ver").textContent=VERSION;
   $("copylog").addEventListener("click",function(){
     var t=$("log").textContent;
-    function done(){ line("in","log copied to the clipboard"); }
+    function done(){ line("in","The tool copied the log to the clipboard."); }
     function fallback(){
       try{ var ta=document.createElement("textarea"); ta.value=t; ta.setAttribute("readonly",""); ta.style.position="fixed"; ta.style.opacity="0";
         document.body.appendChild(ta); ta.select(); var ok=document.execCommand("copy"); document.body.removeChild(ta);
         if(ok) done(); else throw new Error("copy refused"); }
-      catch(_){ line("er","couldn't copy automatically — select the log text and copy it manually"); }
+      catch(_){ line("er","The tool could not copy the log automatically. Select the log text. Then copy the text manually."); }
     }
     if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,fallback); else fallback();
   });
@@ -670,9 +670,9 @@
     var bk=toHexStr(seedToKey([0x11,0x22,0x33,0x44],MASK_BCM)),  bok=(bk==="801941AE");
     try{console.log("key selfcheck — DASH",dk,dok?"OK":"FAIL(expect C024115D)","| BCM",bk,bok?"OK":"FAIL(expect 801941AE)");}catch(_){}
     line("in",PRODUCT+" "+VERSION);
-    var so=storedOriginal(); if(so) line("in","rollback original saved on this phone: "+so);
-    if(dok&&bok){ line("in","key self-check OK (DASH "+dk+", BCM "+bk+")"); }
-    else { line("er","KEY SELF-CHECK FAILED — DASH "+dk+(dok?"":" (expect C024115D)")+", BCM "+bk+(bok?"":" (expect 801941AE)")+" — do not use this build"); }
+    var so=storedOriginal(); if(so) line("in","This browser contains the saved original F010 value for ↺ Restore: "+so);
+    if(dok&&bok){ line("in","The key self-check found no errors (DASH "+dk+", BCM "+bk+")."); }
+    else { line("er","KEY SELF-CHECK FAILED. Do not use this version of the tool. This version can calculate incorrect security keys. Results: DASH "+dk+(dok?"":" (expected C024115D)")+", BCM "+bk+(bok?"":" (expected 801941AE)")+"."); }
   })();
 })();
 </script>
