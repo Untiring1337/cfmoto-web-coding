@@ -17,8 +17,9 @@ try {
   });
 } catch (e) {
   const text = String(e.stdout || '') + String(e.stderr || '');
-  // Cloudflare API error 10007: the Worker does not exist yet (first deploy).
-  if (/\b10007\b|does not exist/i.test(text)) process.exit(0);
+  // First deploy: the Worker does not exist yet (Cloudflare API error 10007 or 10090), or it exists without a
+  // deployment ("The Worker <name> has no deployments.", from wrangler).
+  if (/\b(10007|10090)\b|does not exist|script_not_found|has no deployments/i.test(text)) process.exit(0);
   console.error(text.trim() || e.message);
   process.exit(1);
 }
