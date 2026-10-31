@@ -5,6 +5,9 @@
 //                                          the responses: files, status codes and the exact headers from site/_headers
 //   node tests/site-check.mjs production   the same response checks against the production origin, retried for up
 //                                          to SITE_CHECK_RETRY_SECONDS (default 180), until the new version is live
+//   node tests/site-check.mjs live         the production origin serves the released tool (any version); checked
+//                                          before a preview deploy replaces the page at the address of the first release
+// production and live take an optional second argument: another base URL to check (for example a wrangler dev server).
 // No dependencies other than wrangler (root package.json, local mode only).
 import { createHash } from 'node:crypto';
 import { spawn } from 'node:child_process';
@@ -24,6 +27,9 @@ const BUILD_MARKER = '<!--BUILD-->local<!--/BUILD-->';
 const read = f => fs.readFileSync(path.join(ROOT, f), 'utf8');
 const sha256 = buf => createHash('sha256').update(buf).digest('hex');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
+const REQUEST_TIMEOUT_MS = 15000;
+const get = (url, headers = {}) => fetch(url, { redirect: 'manual', signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+  headers: { accept: 'text/html', 'sec-fetch-mode': 'navigate', 'cache-control': 'no-cache', ...headers } });
 
 function productionOrigin() {
   const m = /var PRODUCTION_ORIGIN = "([^"]+)";/.exec(read('site/index.html'));
@@ -67,9 +73,8 @@ function staticChecks() {
 async function responseChecks(base) {
   const errors = [];
   const want = readHeaders();
-  const get = p => fetch(base + p, { redirect: 'manual', headers: { accept: 'text/html', 'sec-fetch-mode': 'navigate', 'cache-control': 'no-cache' } });
   const expect = async (p, status, file) => {
-    const r = await get(p);
+    const r = await get(base + p);
     const body = Buffer.from(await r.arrayBuffer());
     if (r.status !== status) errors.push(`${p}: status ${r.status}, expected ${status}`);
     if (file && sha256(body) !== sha256(fs.readFileSync(path.join(SITE, file)))) errors.push(`${p}: the body is not site/${file}`);
@@ -85,11 +90,22 @@ async function responseChecks(base) {
   return errors;
 }
 
-async function untilPassing(base, seconds) {
+// The production origin serves a released version of the tool (not necessarily the version in this checkout).
+async function liveChecks(base) {
+  try {
+    const r = await get(base + '/');
+    const body = await r.text();
+    if (r.status !== 200) return [`${base}/: status ${r.status}, expected 200`];
+    if (!body.includes(`var PRODUCTION_ORIGIN = "${productionOrigin()}";`)) return [`${base}/: the response is not the released tool`];
+    return [];
+  } catch (e) { return ['request failed: ' + (e.cause?.message || e.message)]; }
+}
+
+async function untilPassing(base, seconds, checks = responseChecks) {
   const deadline = Date.now() + seconds * 1000;
   for (let attempt = 1; ; attempt++) {
-    const errors = await responseChecks(base);
-    if (!errors.length) { console.log(`${base}: all response checks passed (attempt ${attempt}).`); return []; }
+    const errors = await checks(base);
+    if (!errors.length) { console.log(`${base}: all checks passed (attempt ${attempt}).`); return []; }
     if (Date.now() >= deadline) return errors;
     console.log(`${base}: attempt ${attempt} not passed yet (${errors[0]}). Trying again in 10 s.`);
     await sleep(10000);
@@ -122,8 +138,13 @@ async function localChecks() {
 }
 
 const mode = process.argv[2];
-const run = { static: staticChecks, local: localChecks, production: () => untilPassing(productionOrigin(), Number(process.env.SITE_CHECK_RETRY_SECONDS ?? 180)) }[mode];
-if (!run) { console.error('Usage: node tests/site-check.mjs static|local|production'); process.exit(2); }
+const run = {
+  static: staticChecks,
+  local: localChecks,
+  production: () => untilPassing(process.argv[3] || productionOrigin(), Number(process.env.SITE_CHECK_RETRY_SECONDS ?? 180)),
+  live: () => untilPassing(process.argv[3] || productionOrigin(), Number(process.env.SITE_CHECK_RETRY_SECONDS ?? 30), liveChecks),
+}[mode];
+if (!run) { console.error('Usage: node tests/site-check.mjs static|local|production|live'); process.exit(2); }
 let errors;
 try { errors = await run(); } catch (e) { errors = [e.message]; }
 for (const e of errors) console.log((process.env.GITHUB_ACTIONS ? '::error::' : 'ERROR ') + e);

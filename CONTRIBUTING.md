@@ -9,7 +9,11 @@ This document describes the branches, the release procedure, the rules for chang
 | `main` | Production (Cloudflare Workers) | <https://cfmoto-web-coding.your-subdomain.workers.dev/> |
 | `dev` | Preview (GitHub Pages) | <https://untiring1337.github.io/cfmoto-web-coding/> |
 
-The workflow `.github/workflows/ci.yml` deploys each branch after the browser simulations and the site checks pass. The preview shows a banner with the build ID (`dev` and the short commit ID). The banner tells users not to use the preview on a motorcycle. On the production address, the banner is hidden.
+The workflow `.github/workflows/ci.yml` deploys each branch after the browser simulations and the site checks pass. Only the newest commit on the branch is deployed. A run for an older commit, also a re-run of an older run, does not deploy.
+
+The preview shows a banner with the build ID (`dev` and the short commit ID). The banner tells users not to use the preview on a motorcycle. On the production address, the banner is hidden. The preview has its own risk acknowledgement: an acknowledgement given to the released tool does not enable *Connect* in the preview.
+
+The preview uses the address of the first release. For this reason, the preview deploy starts only when the production address serves the released tool.
 
 Only the files in `site/` are served.
 
@@ -20,9 +24,9 @@ Only the files in `site/` are served.
 3. Merge the pull request. CI deploys the preview.
 4. Test the preview on a motorcycle. Do a dry run as a minimum. If the change has an effect on a write, also do a write and a restore.
 5. Open a release pull request from `dev` into `main`. Merge it with a **merge commit**. Do not use squash or rebase, because then `dev` and `main` get different histories.
-6. CI deploys production and checks the responses from the production address. If the check fails, CI rolls production back to the previous version automatically.
+6. CI deploys production and checks the responses from the production address. If a step fails or the run is cancelled, CI sets production back to the version from before the deploy.
 
-The site checks fail for a pull request into `main` from a branch other than `dev`.
+The check *Release source* (`.github/workflows/release-checks.yml`) fails for a pull request into `main` from a branch other than `dev`. It runs again when the base branch of a pull request changes. It also fails while the GitHub Pages source is not *GitHub Actions*.
 
 ## Rules for changes
 
@@ -51,6 +55,8 @@ node tests/site-check.mjs local         # response checks against wrangler dev
 npm run check                           # validates the Worker configuration (no upload)
 ```
 
+wrangler sends usage metrics to Cloudflare by default, and `send_metrics` in `wrangler.jsonc` does not stop all of them. To stop them, set the environment variable `WRANGLER_SEND_METRICS=false`. CI sets this variable.
+
 For the browser simulations, refer to [tests/README.md](tests/README.md).
 
 `package.json` denies the install scripts of `esbuild` and `workerd` (`allowScripts`). wrangler does not need them, because npm installs the platform binaries as optional dependencies. If a dependency update adds a package with an install script, npm shows it. Examine the script before you approve it with `npm install-scripts approve`.
@@ -71,5 +77,6 @@ Until the revert is released, do not merge into `main` and do not start the work
 These settings are necessary for the deploys. Only the repository owner can change them.
 
 - Environment `production`: deployment branch `main` only. Secrets `CLOUDFLARE_API_TOKEN` (token from the "Edit Cloudflare Workers" template, for this account only) and `CLOUDFLARE_ACCOUNT_ID`.
-- Environment `github-pages`: deployment branch `dev` only. Pages source: GitHub Actions.
-- Rulesets: `main` and `dev` require a pull request and the checks *Browser simulations* and *Site checks*. `main` allows merge commits only. `dev` cannot be deleted.
+- Environment `github-pages`: deployment branch `dev` only.
+- Pages source: *GitHub Actions*. The check *Release source* fails for other settings.
+- Rulesets: `main` and `dev` require a pull request and the checks *Browser simulations* and *Site checks*. `main` also requires *Release source* and allows merge commits only. `dev` cannot be deleted.

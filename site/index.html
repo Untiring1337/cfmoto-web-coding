@@ -218,7 +218,9 @@
   if(!navigator.bluetooth){ $("noble").style.display="block"; }
 
   // ---- risk acknowledgement: Connect stays disabled until the notice has been accepted ----
-  var ACK_KEY="cf800-heating-coder.ack";
+  // Outside production (the preview uses the address of the first release) the acknowledgement has its own key.
+  // An acknowledgement given to the released tool must not enable Connect in an unreleased version.
+  var ACK_KEY="cf800-heating-coder.ack"+(document.documentElement.classList.contains("is-production")?"":".preview");
   function ackStored(){ try{ return localStorage.getItem(ACK_KEY)==="1"; }catch(_){ return false; } }
   function ackSave(v){ try{ localStorage.setItem(ACK_KEY,v?"1":"0"); }catch(_){} }
   function b1Gate(){ $("b1").disabled=connecting || !navigator.bluetooth || !$("ack").checked; }

@@ -1,13 +1,15 @@
 // Serves the files in site/ to the browser through Playwright routing, the way production serves them:
 // correct MIME types, the HTTP headers from site/_headers on every response, and 404.html for a missing page.
-// A scenario can choose the origin (for example the production origin) and a base path (the GitHub Pages
-// preview serves the site under /cfmoto-web-coding/). Every other request is aborted, so no test reaches the network.
+// The default origin is the production origin from site/index.html, so the scenarios test the released tool. A scenario
+// can choose another origin and a base path (the GitHub Pages preview serves the site under /cfmoto-web-coding/).
+// Every other request is aborted, so no test reaches the network.
 'use strict';
 const fs = require('fs');
 const path = require('path');
 
-const ORIGIN = 'http://localhost:8799';
 const SITE = path.resolve(__dirname, '..', '..', 'site');
+const PRODUCTION_ORIGIN = /var PRODUCTION_ORIGIN = "(https:\/\/[^"/]+)";/.exec(fs.readFileSync(path.join(SITE, 'index.html'), 'utf8'))[1];
+const LOCAL_ORIGIN = 'http://localhost:8799';
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.mjs': 'text/javascript; charset=utf-8',
   '.css': 'text/css; charset=utf-8', '.json': 'application/json; charset=utf-8', '.svg': 'image/svg+xml',
@@ -41,7 +43,7 @@ function resolveFile(urlPath, basePath) {
   return fs.existsSync(file) && fs.statSync(file).isFile() ? file : null;
 }
 
-async function serveSite(context, { origin = ORIGIN, basePath = '/' } = {}) {
+async function serveSite(context, { origin = PRODUCTION_ORIGIN, basePath = '/' } = {}) {
   const headers = readHeaders();
   await context.route('**/*', route => route.abort());                    // added first, so it is the fallback
   await context.route(origin + '/**', route => {
@@ -54,4 +56,4 @@ async function serveSite(context, { origin = ORIGIN, basePath = '/' } = {}) {
   });
 }
 
-module.exports = { ORIGIN, SITE, serveSite, readHeaders };
+module.exports = { PRODUCTION_ORIGIN, LOCAL_ORIGIN, SITE, serveSite, readHeaders };

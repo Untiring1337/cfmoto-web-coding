@@ -2,7 +2,7 @@
 // page, gives the scenario a small helper API, and records a snapshot of everything the user and the adapter see.
 'use strict';
 const path = require('path');
-const { ORIGIN, serveSite } = require('./serve');
+const { PRODUCTION_ORIGIN, serveSite } = require('./serve');
 
 function assert(cond, msg) { if (!cond) throw new Error('ASSERT: ' + msg); }
 
@@ -56,12 +56,12 @@ async function settle(page, quietMs = 1000, maxMs = 30000) {
 }
 
 // Scenario configuration read by the harness (the mock reads the rest of cfg):
-//   origin    origin that serves the site (default ORIGIN); basePath  path prefix of the site (default '/')
+//   origin    origin that serves the site (default: the production origin); basePath  path prefix (default '/')
 //   pageFile  file opened below basePath (default: the suite's pageFile; '' opens the directory index)
 //   storage   { key: value } put into localStorage before the page loads, if the key is not there yet
 async function runScenario(browser, scenario, { mockPath, pageFile = 'index.html' }) {
   const [name, cfg, steps] = scenario;
-  const origin = cfg.origin || ORIGIN, basePath = cfg.basePath || '/';
+  const origin = cfg.origin || PRODUCTION_ORIGIN, basePath = cfg.basePath || '/';
   const context = await browser.newContext();
   await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
   const page = await context.newPage();
