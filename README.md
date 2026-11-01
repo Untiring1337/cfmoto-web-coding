@@ -2,7 +2,7 @@
 
 This tool is a web page for the CFMOTO CF800-11H. It enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. The tool operates only in the browser of your phone. It is not necessary to install software or to create an account. The tool does not send data from your phone to the internet.
 
-**Open the tool:** <https://cfmoto-web-coding.your-subdomain.workers.dev/>
+**Open the tool:** <https://cfmoto-web-coding.stenmartens.workers.dev/>
 
 > **Disclaimer.** This community project is independent of CFMOTO. CFMOTO did not approve or endorse it.
 >
@@ -38,7 +38,7 @@ The tool can also read other instrument clusters. If the part number or the leng
 
 ## Procedure
 
-Open <https://cfmoto-web-coding.your-subdomain.workers.dev/> in Chrome or Edge on your Android phone. Read the notice at the top of the page. Then select the check box in the *Before you start* section. When you select this check box, you accept that you are fully responsible for all changes that you make to your motorcycle. You cannot select *① Connect to OBDLink CX* until you select this check box.
+Open <https://cfmoto-web-coding.stenmartens.workers.dev/> in Chrome or Edge on your Android phone. Read the notice at the top of the page. Then select the check box in the *Before you start* section. When you select this check box, you accept that you are fully responsible for all changes that you make to your motorcycle. You cannot select *① Connect to OBDLink CX* until you select this check box.
 
 Do the steps below in sequence. After each step, read the result below the button of that step. The status bar above step 1 stays at the top of the screen. It also shows the latest result. A ✓ result means that the step is complete. If the result shows ⚠ or ✗, do the instructions in the result. If the result does not show an instruction, do the step again. If the problem continues, select *Copy log* and report the problem. The log at the bottom of the page shows all details.
 
@@ -77,7 +77,7 @@ The browser keeps the saved original F010 value for each web address. If you use
 
 1. Open <https://untiring1337.github.io/cfmoto-web-coding/> on the same phone, in the same browser. This address now shows the preview version of the tool. Do not use the preview version on your motorcycle.
 2. Find the saved original F010 value in the notice at the top of the page. Select *Copy*.
-3. Open the tool at <https://cfmoto-web-coding.your-subdomain.workers.dev/>. Do the rollback steps above. In step 4, paste the value into the field next to *↺ Restore*.
+3. Open the tool at <https://cfmoto-web-coding.stenmartens.workers.dev/>. Do the rollback steps above. In step 4, paste the value into the field next to *↺ Restore*.
 
 ## Safety measures
 

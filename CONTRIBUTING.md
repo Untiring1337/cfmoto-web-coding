@@ -6,7 +6,7 @@ This document describes the branches, the release procedure, the rules for chang
 
 | Branch | Deployed to | Address |
 |---|---|---|
-| `main` | Production (Cloudflare Workers) | <https://cfmoto-web-coding.your-subdomain.workers.dev/> |
+| `main` | Production (Cloudflare Workers) | <https://cfmoto-web-coding.stenmartens.workers.dev/> |
 | `dev` | Preview (GitHub Pages) | <https://untiring1337.github.io/cfmoto-web-coding/> |
 
 The workflow `.github/workflows/ci.yml` deploys each branch after the browser simulations and the site checks pass. Only the newest commit on the branch is deployed. A run for an older commit, also a re-run of an older run, does not deploy.
