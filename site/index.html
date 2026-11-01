@@ -3,13 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>CF800-11H Heated Grip &amp; Seat Coder</title>
-<link rel="canonical" href="https://cfmoto-web-coding.untiring1337.workers.dev/">
+<title>OpenMoto Diag — heated grips and seat</title>
+<link rel="canonical" href="https://openmoto-diag.untiring1337.workers.dev/">
 <script>
   // The released tool is served only from PRODUCTION_ORIGIN. On every other address (the GitHub Pages dev preview,
   // a local test server) the preview banner stays visible, search engines are asked not to index the page, and the
   // page does not show inside a frame.
-  var PRODUCTION_ORIGIN = "https://cfmoto-web-coding.untiring1337.workers.dev";
+  var PRODUCTION_ORIGIN = "https://openmoto-diag.untiring1337.workers.dev";
   (function () {
     if (location.origin === PRODUCTION_ORIGIN) { document.documentElement.classList.add("is-production"); return; }
     var m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
@@ -67,6 +67,8 @@
   .is-production .pv{display:none}
   .disc{border:1px solid var(--bad);background:rgba(255,82,82,.08);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:.84rem}
   .disc b{display:block;margin:0 0 4px}
+  .disc p{margin:.45rem 0 0}
+  .disc a{color:var(--accent)}
   .foot{color:var(--mut);font-size:.76rem;line-height:1.6;margin:20px 0 0;border-top:1px solid var(--line);padding-top:12px}
   .foot a{color:var(--accent)}
 </style>
@@ -74,18 +76,22 @@
 <body>
   <div class="pv" id="pv" role="note">
     <b>PREVIEW VERSION — NOT RELEASED.</b>
-    Do not use this version on your motorcycle. Use the released tool: <a id="pvlink" href="https://cfmoto-web-coding.untiring1337.workers.dev/">cfmoto-web-coding.untiring1337.workers.dev</a>
+    Do not use this version on your motorcycle. Use the released tool: <a id="pvlink" href="https://openmoto-diag.untiring1337.workers.dev/">openmoto-diag.untiring1337.workers.dev</a>
     <span id="pvorig" hidden>This address keeps an original F010 value from an earlier use of this tool: <code id="pvval"></code><button type="button" id="pvcopy">Copy</button> The released tool cannot see this value. Keep a copy of it.</span>
     <span class="pvb">Build: <code id="pvbuild"><!--BUILD-->local<!--/BUILD--></code></span>
   </div>
 
   <div class="disc" role="note">
     <b>This community project is independent of CFMOTO. CFMOTO did not approve or endorse it.</b>
-    This tool reads and writes configuration data in the instrument cluster of your motorcycle through the diagnostic connector. This tool is supplied "as is", without warranty of any kind. A change to the configuration of your motorcycle can have an effect on your warranty. If you make the change incorrectly, a module can have an incorrect configuration. You use this tool fully at your own risk. Only you are responsible for all changes that you make to your motorcycle.
+    <p>This tool writes configuration data to a control unit in your motorcycle through the diagnostic connector. An incorrect write can give a module an incorrect configuration or make the instrument cluster stop operating.</p>
+    <p>Use this tool only on a motorcycle that you own, and only at your own risk. A change to the configuration can have an effect on your warranty, on the road-legal conformity of your motorcycle (in the Netherlands, the RDW rules) and on your insurance. Only you are responsible for all changes that you make.</p>
+    <p>This tool is supplied "as is", without warranty of any kind. To the maximum extent that the law permits, the authors accept no liability, except in the case of intent or gross negligence.</p>
+    <p>Each change sets only two bits in the configuration record (F010): one bit for the heated grips and one bit for the heated seat. All other data stays the same. Before the first write, the tool saves the original value, and ↺ Restore writes it back.</p>
+    <p>The descriptions in this tool are written by the authors of the tool. To report a problem or to read the list of changes, open the <a href="https://github.com/Untiring1337/openmoto-diag">project repository</a>.</p>
   </div>
 
-  <h1>CF800-11H Heated Grip &amp; Seat Coder</h1>
-  <p class="sub">This tool enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. For each change, the tool reads the configuration record (F010) from the instrument cluster and changes the necessary bits. Then the tool writes the configuration record, reads it again and compares it with the written value. Before the tool writes for the first time, it saves the original F010 value in this browser. You can use ↺ Restore to write the original configuration record to the instrument cluster again.</p>
+  <h1>OpenMoto Diag</h1>
+  <p class="sub">OpenMoto Diag is an unofficial community tool for the CFMOTO 800MT-X (CF800-11H). It is not affiliated with CFMOTO. It enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. For each change, the tool reads the configuration record (F010) from the instrument cluster and changes the necessary bits. Then the tool writes the configuration record, reads it again and compares it with the written value. Before the tool writes for the first time, it saves the original F010 value in this browser. You can use ↺ Restore to write the original configuration record to the instrument cluster again.</p>
 
   <div class="badbox" id="noble">
     <b>Web Bluetooth is not available in this browser.</b> Open this page in <b>Chrome on Android</b>. You can also use Edge or Opera. The page address must start with <b>https://</b>. This tool does not operate in Safari or on iOS. If you open this page from a <code>file://</code> link, this tool does not operate.
@@ -138,7 +144,7 @@
 
   <div class="card">
     <h2>Rollback — Restore the original configuration</h2>
-    <p class="d">↺ Restore writes the original configuration record to the instrument cluster again. Before step 4 writes for the first time, this tool automatically saves the original F010 value in this browser and shows it in the field. You can also enter the <i>current F010</i> value that an earlier log showed before your first write. ↺ Restore uses the same write procedure as step 4. Before you use ↺ Restore, do step 3. The value in the field must have the same length as the configuration record in the instrument cluster. If you used this tool at the earlier address untiring1337.github.io/cfmoto-web-coding, your original F010 value is saved at that address. Open that address to see it.</p>
+    <p class="d">↺ Restore writes the original configuration record to the instrument cluster again. Before step 4 writes for the first time, this tool automatically saves the original F010 value in this browser and shows it in the field. You can also enter the <i>current F010</i> value that an earlier log showed before your first write. ↺ Restore uses the same write procedure as step 4. Before you use ↺ Restore, do step 3. The value in the field must have the same length as the configuration record in the instrument cluster. If you used this tool at the earlier address untiring1337.github.io/openmoto-diag, your original F010 value is saved at that address. Open that address to see it.</p>
     <div class="rowc"><input id="orig" placeholder="original F010 value, for example 7300…" autocapitalize="characters" spellcheck="false"><button class="step ghost" id="brb" style="width:auto;padding:10px 14px" disabled>↺ Restore</button></div>
     <div class="res" id="rR"></div>
   </div>
@@ -169,8 +175,8 @@
   </div>
 
   <div class="foot">
-    CF800-11H Heated Grip &amp; Seat Coder <span id="ver"></span> ·
-    <a href="https://github.com/Untiring1337/cfmoto-web-coding">Source code &amp; issue tracker</a> · MIT License<br>
+    OpenMoto Diag <span id="ver"></span> ·
+    <a href="https://github.com/Untiring1337/openmoto-diag">Source code &amp; issue tracker</a> · MIT License<br>
     This community project is independent of CFMOTO. CFMOTO did not approve or endorse it. This tool is supplied "as is", without warranty. You use this tool at your own risk.
     CFMOTO and all product names are trademarks of their owners. This page uses these names only for identification.
   </div>
@@ -189,7 +195,7 @@
                                              // ④ and ↺ both stay blocked until reconnect
   var connGen=0;                             // bumped on every disconnect: a write that outlives its link must not touch the next one
 
-  var VERSION="v1.0.0", PRODUCT="CF800-11H Heated Grip & Seat Coder";
+  var VERSION="v1.0.0", PRODUCT="OpenMoto Diag";
   // Clusters on which the byte-1 bit 4/5 mapping has been verified on a vehicle. Add one entry per confirmed variant.
   var KNOWN=[{model:"CF800-11H", part:"6WW9-171000-8000", sw:"SW.1.02.02", len:16}];
   function findKnown(part){ for(var i=0;i<KNOWN.length;i++) if(KNOWN[i].part===part) return KNOWN[i]; return null; }
@@ -627,7 +633,7 @@
     var so=storedOriginal(), first=!sessionOrig;
     if(first) sessionOrig=so||toHexStr(b);
     if(!so){
-      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","The tool saved the original F010 value in this browser for ↺ Restore: "+sessionOrig+". Make sure that this value is the same as the \"current F010\" value from before your first write. If you used this tool at the earlier address untiring1337.github.io/cfmoto-web-coding, your original F010 value is saved at that address."); }
+      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","The tool saved the original F010 value in this browser for ↺ Restore: "+sessionOrig+". Make sure that this value is the same as the \"current F010\" value from before your first write. If you used this tool at the earlier address untiring1337.github.io/openmoto-diag, your original F010 value is saved at that address."); }
       catch(_){ if(first) line("er","The tool could not save the original F010 value in this browser, because browser storage is blocked. Keep a copy of this value: "+sessionOrig+". The tool read this value before step ④ wrote for the first time after you opened this page. If you wrote F010 before you opened this page, use the first \"current F010\" value from that earlier log."); }
     }
     if(!$("orig").value.trim()) $("orig").value=sessionOrig;

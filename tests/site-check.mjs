@@ -53,7 +53,7 @@ function staticChecks() {
       if (u !== prod) errors.push(f + ': ' + u + ' is not the production origin ' + prod);
     }
     if (f.startsWith('site/')) {
-      // The preview serves the site below /cfmoto-web-coding/, production at /. Root-relative URLs break one of them.
+      // The preview serves the site below /openmoto-diag/, production at /. Root-relative URLs break one of them.
       for (const [m] of text.matchAll(/\b(?:src|href|action|poster)\s*=\s*["']?\/[^"'\s>]*|url\(\s*["']?\/[^)]*\)/gi)) errors.push(f + ': root-relative URL ' + m);
     }
   }

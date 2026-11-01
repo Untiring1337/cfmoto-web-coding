@@ -4,7 +4,7 @@
  "alerts": [],
  "timers": [],
  "log": [
-  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | OpenMoto Diag v1.0.0",
   "in | This browser contains the saved original F010 value for ↺ Restore: 73000000000000000000000000000000",
   "in | The key self-check found no errors (DASH C024115D, BCM 801941AE)."
  ],

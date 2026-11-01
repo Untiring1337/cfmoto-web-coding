@@ -2,7 +2,7 @@
 // Deployed by .github/workflows/ci.yml from the main branch after all checks pass.
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
-  "name": "cfmoto-web-coding",
+  "name": "openmoto-diag",
   // Must not be later than the workerd version bundled with the pinned wrangler (1.20261019.1).
   "compatibility_date": "2026-10-19",
   "assets": {
