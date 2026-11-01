@@ -402,6 +402,13 @@ scenarios.push(
     const rD = await RES(t, 'rD'); assert(/Select "Heated grips", "Heated seat", or both\. Then do step ④\./.test(rD.text), 'rD: ' + JSON.stringify(rD));
     const r2 = await RES(t, 'r2'); assert(/The dry run did this step/.test(r2.text), 'r2 updated by the dry run: ' + JSON.stringify(r2));
   }],
+  ['dry run on a cluster that already has both functions: no change, step 4 not necessary', { rec: [0x73, 0x30, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], part: '6WW9-171000-8000', sw: 'SW.1.02.02' }, async t => {
+    await t.click('b1'); await t.until(/connected and ready/); await t.click('bdry'); await t.until(/DRY RUN/);
+    const L = await t.logText();
+    assert(/DRY RUN \(read-only\) ✓\. The selected functions are already enabled\. Step ④ is not necessary\./.test(L), 'dry-run line says no change is needed');
+    assert(!/from 30 to 30/.test(L) && !/To make the change/.test(L), 'no change offered');
+    assert((await t.btn('b4')).disabled, 'dry run must not arm ④');
+  }],
   ['chooser cancelled: plain message, no browser error text', { cancelChooser: true }, async t => {
     await t.click('b1'); await t.until(/connection failed/);
     const r1 = await RES(t, 'r1'); assert(r1.text === '✗ The connection failed. No adapter was selected. Do step ① again.', 'r1: ' + JSON.stringify(r1));

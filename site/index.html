@@ -599,8 +599,11 @@
       if(g!==connGen) throw new Error("The Bluetooth connection stopped during the dry run. Do step ① again.");
       var m=0; if($("grips").checked)m|=0x10; if($("seat").checked)m|=0x20;
       var nb=b.slice(); nb[1]=(nb[1]|m)&0xFF;
-      line(sendOK?"in":"er","DRY RUN (read-only) "+(sendOK?"✓":"completed with a problem")+". If you do step ④, it will change byte 1 from "+hx(b[1])+" to "+hx(nb[1])+". The other "+(b.length-1)+" bytes will not change. The dry run did not write to the instrument cluster. It does not make step ④ available."+
-        (sendOK?" To make the change, do steps ③ and ④.":" The write stays BLOCKED until the long-message test passes."));
+      var change=!m ? "No function is selected. Step ④ has nothing to change."
+        : nb[1]===b[1] ? "The selected functions are already enabled. Step ④ is not necessary."
+        : "If you do step ④, it will change byte 1 from "+hx(b[1])+" to "+hx(nb[1])+". The other "+(b.length-1)+" bytes will not change.";
+      line(sendOK?"in":"er","DRY RUN (read-only) "+(sendOK?"✓":"completed with a problem")+". "+change+" The dry run did not write to the instrument cluster. It does not make step ④ available."+
+        (!sendOK?" The write stays BLOCKED until the long-message test passes.":nb[1]!==b[1]?" To make the change, do steps ③ and ④.":""));
       if(!sendOK) result("D","er","✗ The dry run found a problem. "+probeErr+" Read the log.");
       else if(!variantNote(b.length).ok) result("D","warn","⚠ The dry run is complete. The instrument cluster is UNCONFIRMED. Read the warning below. "+nextAfterRead(b,true));
       else result("D","ok","✓ The dry run is complete. The tool found no problems. "+nextAfterRead(b,true));
