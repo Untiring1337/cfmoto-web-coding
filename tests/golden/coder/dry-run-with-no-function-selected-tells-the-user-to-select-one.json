@@ -215,7 +215,7 @@
   "tx | » STPX d:22F010F010F010F010,t:1000",
   "rx | « 7F2213\\r\\r",
   "in | The long-message test passed. The instrument cluster replied to a multi-frame request of 9 bytes.",
-  "in | DRY RUN (read-only) ✓. If you do step ④, it will change byte 1 from 00 to 00. The other 15 bytes will not change. The dry run did not write to the instrument cluster. It does not make step ④ available. To make the change, do steps ③ and ④."
+  "in | DRY RUN (read-only) ✓. No function is selected. Step ④ has nothing to change. The dry run did not write to the instrument cluster. It does not make step ④ available."
  ],
  "stat": "The OBDLink CX adapter is connected and ready.",
  "dot": "dot on",
