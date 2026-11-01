@@ -1,5 +1,5 @@
 {
-  "name": "cfmoto-web-coding",
+  "name": "openmoto-diag",
   "private": true,
   "description": "Deployment tooling for the CF800-11H Heated Grip & Seat Coder. The site itself has no dependencies.",
   "license": "MIT",

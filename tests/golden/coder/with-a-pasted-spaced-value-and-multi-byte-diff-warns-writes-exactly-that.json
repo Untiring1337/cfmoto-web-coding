@@ -182,7 +182,7 @@
   }
  ],
  "log": [
-  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | OpenMoto Diag v1.0.0",
   "in | The key self-check found no errors (DASH C024115D, BCM 801941AE).",
   "in | The tool is connected to OBDLink CX.",
   "tx | » ATZ",

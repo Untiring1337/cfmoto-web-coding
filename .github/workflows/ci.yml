@@ -74,7 +74,7 @@ jobs:
   deploy-production:
     name: Deploy to production (Cloudflare Workers)
     needs: [simulations, site-checks]
-    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    if: github.repository == 'Untiring1337/openmoto-diag' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     environment:
@@ -177,7 +177,7 @@ jobs:
   deploy-preview:
     name: Deploy the dev preview (GitHub Pages)
     needs: [simulations, site-checks]
-    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    if: github.repository == 'Untiring1337/openmoto-diag' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
