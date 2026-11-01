@@ -276,12 +276,12 @@ scenarios.push(
     await t.click('b1'); await t.until(/connected and ready/);
   }],
   ['public build: version line, footer, no internal wording', {}, async t => {
-    const L = await t.logText(); assert(/CF800-11H Heated Grip & Seat Coder v1\.0\.0/.test(L), 'version in log');
+    const L = await t.logText(); assert(/OpenMoto Diag v1\.0\.0/.test(L), 'version in log');
     const body = await t.page.evaluate(() => document.body.innerText);
     assert(/independent of CFMOTO\. CFMOTO did not approve or endorse it/.test(body), 'disclaimer');
     assert(/v1\.0\.0/.test(await t.page.$eval('#ver', e => e.textContent)), 'footer version');
     assert(!/SAVE THIS|send the log|page build/i.test(body + L), 'no internal wording');
-    assert(await t.page.title() === 'CF800-11H Heated Grip & Seat Coder', 'title: ' + await t.page.title());
+    assert(await t.page.title() === 'OpenMoto Diag — heated grips and seat', 'title: ' + await t.page.title());
   }],
 );
 
@@ -428,7 +428,7 @@ scenarios.push(
 // The released tool is served only from PRODUCTION_ORIGIN (one constant in site/index.html); all other scenarios run
 // there. Every other address, such as the GitHub Pages dev preview, shows the preview banner.
 // site/_headers applies to every response in all scenarios.
-const PREVIEW = { origin: 'https://untiring1337.github.io', basePath: '/cfmoto-web-coding/', pageFile: '' };
+const PREVIEW = { origin: 'https://untiring1337.github.io', basePath: '/openmoto-diag/', pageFile: '' };
 const SAVED = '73000000000000000000000000000000';
 const BANNER = t => t.page.evaluate(() => ({
   shown: getComputedStyle(document.getElementById('pv')).display !== 'none',

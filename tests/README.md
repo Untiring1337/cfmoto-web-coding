@@ -2,7 +2,7 @@
 
 These tests open the real pages from `site/` in Chromium and replace Web Bluetooth with a simulated OBDLink CX adapter and simulated vehicle modules. No vehicle and no adapter are necessary.
 
-The harness serves the pages the way production serves them: every response has the HTTP headers from `site/_headers`. By default, each scenario runs on the production origin (`PRODUCTION_ORIGIN` in `site/index.html`), so the scenarios test the released tool. The preview scenarios set a different origin and base path, for example the preview address below `/cfmoto-web-coding/`. All other requests are blocked, so no test uses the network.
+The harness serves the pages the way production serves them: every response has the HTTP headers from `site/_headers`. By default, each scenario runs on the production origin (`PRODUCTION_ORIGIN` in `site/index.html`), so the scenarios test the released tool. The preview scenarios set a different origin and base path, for example the preview address below `/openmoto-diag/`. All other requests are blocked, so no test uses the network.
 
 ## Run the tests
 

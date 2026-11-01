@@ -1,5 +1,5 @@
 {
-  "name": "cfmoto-web-coding-tests",
+  "name": "openmoto-diag-tests",
   "private": true,
   "description": "Browser simulations for the CF800-11H Heated Grip & Seat Coder.",
   "type": "commonjs",

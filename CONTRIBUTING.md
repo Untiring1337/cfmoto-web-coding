@@ -6,8 +6,8 @@ This document describes the branches, the release procedure, the rules for chang
 
 | Branch | Deployed to | Address |
 |---|---|---|
-| `main` | Production (Cloudflare Workers) | <https://cfmoto-web-coding.untiring1337.workers.dev/> |
-| `dev` | Preview (GitHub Pages) | <https://untiring1337.github.io/cfmoto-web-coding/> |
+| `main` | Production (Cloudflare Workers) | <https://openmoto-diag.untiring1337.workers.dev/> |
+| `dev` | Preview (GitHub Pages) | <https://untiring1337.github.io/openmoto-diag/> |
 
 The workflow `.github/workflows/ci.yml` deploys each branch after the browser simulations and the site checks pass. Only the newest commit on the branch is deployed. A run for an older commit, also a re-run of an older run, does not deploy.
 
@@ -32,7 +32,7 @@ The check *Release source* (`.github/workflows/release-checks.yml`) fails for a 
 
 - **Do not change the production address.** The browser keeps its storage (for example the saved original F010 value) for each address. If the address changes, users cannot see their saved original value at the new address.
 - **Keep the storage keys and the stored formats compatible.** The preview uses the address of the first release (`untiring1337.github.io`). Users of the first release have their saved original F010 value at that address. The preview code must read this data correctly and must not change it.
-- **Use relative URLs in `site/`.** The preview serves the site below `/cfmoto-web-coding/`, production serves it at `/`. The site checks reject URLs that start with `/`.
+- **Use relative URLs in `site/`.** The preview serves the site below `/openmoto-diag/`, production serves it at `/`. The site checks reject URLs that start with `/`.
 - **Keep one production origin.** `PRODUCTION_ORIGIN` in `site/index.html` is the reference. The canonical link, the banner, `site/404.html`, `README.md` and this document use the same origin. The site checks compare them.
 - **Write all user-facing text in ASD-STE100 Simplified Technical English.**
 - **Update the golden snapshots only for an intended change.** Refer to [tests/README.md](tests/README.md).
@@ -65,7 +65,7 @@ For the browser simulations, refer to [tests/README.md](tests/README.md).
 
 **Production:**
 
-1. Roll back in the Cloudflare dashboard (Workers & Pages, `cfmoto-web-coding`, Deployments), or run `npx wrangler rollback` with the Cloudflare credentials.
+1. Roll back in the Cloudflare dashboard (Workers & Pages, `openmoto-diag`, Deployments), or run `npx wrangler rollback` with the Cloudflare credentials.
 2. Revert the change on `dev`. Then do a release (steps 5 and 6 of the release procedure).
 
 Until the revert is released, do not merge into `main` and do not start the workflow on `main`. A deploy from `main` replaces the rollback.

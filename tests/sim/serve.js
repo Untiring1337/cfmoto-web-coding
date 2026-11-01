@@ -1,7 +1,7 @@
 // Serves the files in site/ to the browser through Playwright routing, the way production serves them:
 // correct MIME types, the HTTP headers from site/_headers on every response, and 404.html for a missing page.
 // The default origin is the production origin from site/index.html, so the scenarios test the released tool. A scenario
-// can choose another origin and a base path (the GitHub Pages preview serves the site under /cfmoto-web-coding/).
+// can choose another origin and a base path (the GitHub Pages preview serves the site under /openmoto-diag/).
 // Every other request is aborted, so no test reaches the network.
 'use strict';
 const fs = require('fs');

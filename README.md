@@ -1,8 +1,10 @@
-# CF800-11H Heated Grip & Seat Coder
+# OpenMoto Diag
 
-This tool is a web page for the CFMOTO CF800-11H. It enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. The tool operates only in the browser of your phone. It is not necessary to install software or to create an account. The tool does not send data from your phone to the internet.
+**Unofficial community tool for the CFMOTO 800MT-X (CF800-11H). Not affiliated with CFMOTO.**
 
-**Open the tool:** <https://cfmoto-web-coding.untiring1337.workers.dev/>
+This tool is a web page for the CFMOTO 800MT-X (model code CF800-11H). It enables the factory functions for the heated grips and the heated seat in the instrument cluster. It uses an OBDLink CX adapter and a Bluetooth Low Energy connection. The tool operates only in the browser of your phone. It is not necessary to install software or to create an account. The tool does not send data from your phone to the internet.
+
+**Open the tool:** <https://openmoto-diag.untiring1337.workers.dev/>
 
 > **Disclaimer.** This community project is independent of CFMOTO. CFMOTO did not approve or endorse it.
 >
@@ -38,7 +40,7 @@ The tool can also read other instrument clusters. If the part number or the leng
 
 ## Procedure
 
-Open <https://cfmoto-web-coding.untiring1337.workers.dev/> in Chrome or Edge on your Android phone. Read the notice at the top of the page. Then select the check box in the *Before you start* section. When you select this check box, you accept that you are fully responsible for all changes that you make to your motorcycle. You cannot select *① Connect to OBDLink CX* until you select this check box.
+Open <https://openmoto-diag.untiring1337.workers.dev/> in Chrome or Edge on your Android phone. Read the notice at the top of the page. Then select the check box in the *Before you start* section. When you select this check box, you accept that you are fully responsible for all changes that you make to your motorcycle. You cannot select *① Connect to OBDLink CX* until you select this check box.
 
 Do the steps below in sequence. After each step, read the result below the button of that step. The status bar above step 1 stays at the top of the screen. It also shows the latest result. A ✓ result means that the step is complete. If the result shows ⚠ or ✗, do the instructions in the result. If the result does not show an instruction, do the step again. If the problem continues, select *Copy log* and report the problem. The log at the bottom of the page shows all details.
 
@@ -73,11 +75,11 @@ We recommend that you do a **dry run** before you do step 4 for the first time. 
 
 The value in the field must have the same length as the configuration record in the instrument cluster. If the length is different, the tool does not write.
 
-The browser keeps the saved original F010 value for each web address. If you used this tool at the earlier address `untiring1337.github.io/cfmoto-web-coding`, your original F010 value is saved at that address. The tool at the current address cannot see this value. To get the value, do these steps:
+The browser keeps the saved original F010 value for each web address. If you used this tool at the earlier address `untiring1337.github.io/openmoto-diag`, your original F010 value is saved at that address. The tool at the current address cannot see this value. To get the value, do these steps:
 
-1. Open <https://untiring1337.github.io/cfmoto-web-coding/> on the same phone, in the same browser. This address now shows the preview version of the tool. Do not use the preview version on your motorcycle.
+1. Open <https://untiring1337.github.io/openmoto-diag/> on the same phone, in the same browser. This address now shows the preview version of the tool. Do not use the preview version on your motorcycle.
 2. Find the saved original F010 value in the notice at the top of the page. Select *Copy*.
-3. Open the tool at <https://cfmoto-web-coding.untiring1337.workers.dev/>. Do the rollback steps above. In step 4, paste the value into the field next to *↺ Restore*.
+3. Open the tool at <https://openmoto-diag.untiring1337.workers.dev/>. Do the rollback steps above. In step 4, paste the value into the field next to *↺ Restore*.
 
 ## Safety measures
 
@@ -117,4 +119,4 @@ For the branches, the preview version, the release procedure and the tests, refe
 
 The [MIT License](LICENSE) applies to this project.
 
-CFMOTO and all product names are trademarks of their owners. This project uses these names only for identification.
+CFMOTO is a trademark of Zhejiang CFMOTO Power Co., Ltd. Other product names are trademarks of their respective owners. This is an unofficial project and uses these names only to identify the motorcycle that the tool is made for. Refer to [NOTICE](NOTICE).
