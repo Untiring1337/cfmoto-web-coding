@@ -1,8 +1,8 @@
-// Runs one scenario in an isolated browser context: serves the repo, installs the mock, opens the page,
-// gives the scenario a small helper API, and records a snapshot of everything the user and the adapter see.
+// Runs one scenario in an isolated browser context: serves site/ (see sim/serve.js), installs the mock, opens the
+// page, gives the scenario a small helper API, and records a snapshot of everything the user and the adapter see.
 'use strict';
 const path = require('path');
-const { ORIGIN, serveRepo } = require('./serve');
+const { PRODUCTION_ORIGIN, serveSite } = require('./serve');
 
 function assert(cond, msg) { if (!cond) throw new Error('ASSERT: ' + msg); }
 
@@ -55,17 +55,34 @@ async function settle(page, quietMs = 1000, maxMs = 30000) {
   throw new Error('the page did not become idle within ' + maxMs + ' ms');
 }
 
-async function runScenario(browser, scenario, { mockPath, pagePath = '/index.html' }) {
+// Scenario configuration read by the harness (the mock reads the rest of cfg):
+//   origin    origin that serves the site (default: the production origin); basePath  path prefix (default '/')
+//   pageFile  file opened below basePath (default: the suite's pageFile; '' opens the directory index)
+//   storage   { key: value } put into localStorage before the page loads, if the key is not there yet
+async function runScenario(browser, scenario, { mockPath, pageFile = 'index.html' }) {
   const [name, cfg, steps] = scenario;
+  const origin = cfg.origin || PRODUCTION_ORIGIN, basePath = cfg.basePath || '/';
   const context = await browser.newContext();
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin });
   const page = await context.newPage();
-  const pageErrors = [];
+  const pageErrors = [], policyErrors = [];
   page.on('pageerror', e => pageErrors.push(e.message));
-  await serveRepo(page);
+  // Chromium reports blocked actions and header syntax errors (CSP, Permissions-Policy, COOP, Referrer-Policy) here.
+  page.on('console', m => { if (/Security.Policy|Permissions.Policy|Opener.Policy|Referrer.Policy/i.test(m.text())) policyErrors.push(m.text()); });
+  await serveSite(context, { origin, basePath });
   await page.addInitScript(c => { window.__simCfg = c; }, cfg);
+  await page.addInitScript(() => {
+    const list = window.__policyErrors = [];
+    document.addEventListener('securitypolicyviolation', e => list.push(e.effectiveDirective + ' ' + e.blockedURI));
+  });
+  if (cfg.storage) {
+    await page.addInitScript(s => {
+      try { for (const [k, v] of Object.entries(s)) if (localStorage.getItem(k) === null) localStorage.setItem(k, v); } catch (e) { /* storage blocked */ }
+    }, cfg.storage);
+  }
   await page.addInitScript({ path: path.join(__dirname, 'timers.js') });
   await page.addInitScript({ path: path.resolve(mockPath) });
-  await page.goto(ORIGIN + pagePath);
+  await page.goto(origin + basePath + (cfg.pageFile ?? pageFile));
   if (!cfg.noAck) await page.check('#ack');
   const logText = () => page.evaluate(() => document.getElementById('log').textContent + '\n[stat] ' + document.getElementById('stat').textContent);
   const until = async (re, ms = 30000) => {
@@ -89,6 +106,10 @@ async function runScenario(browser, scenario, { mockPath, pagePath = '/index.htm
   try { await settle(page); snap = await snapshot(page); if (beforeReload.length) snap.beforeReload = beforeReload; }
   catch (e) { if (ok) { ok = false; msg = 'snapshot failed: ' + e.message; } }
   if (ok && pageErrors.length) { ok = false; msg = 'page error: ' + pageErrors.join(' | '); }
+  // site/_headers applies to every response, so a blocked script, style or feature would also break production.
+  // A violation is reported first, because it is usually the cause of the other failures.
+  try { policyErrors.push(...await page.evaluate(() => window.__policyErrors || [])); } catch (e) { /* page closed */ }
+  if (policyErrors.length) { msg = 'security policy violation: ' + [...new Set(policyErrors)].join(' | ') + (ok ? '' : '\n   then: ' + msg); ok = false; }
   const log = snap ? snap.log.join('\n') : await logText().catch(() => '');
   await context.close();
   return { name, ok, msg, log, snap };

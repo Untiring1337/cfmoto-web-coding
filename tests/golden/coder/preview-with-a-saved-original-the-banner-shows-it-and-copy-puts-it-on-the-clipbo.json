@@ -1,0 +1,88 @@
+{
+ "sent": [],
+ "confirms": [],
+ "alerts": [],
+ "timers": [],
+ "log": [
+  "in | CF800-11H Heated Grip & Seat Coder v1.0.0",
+  "in | This browser contains the saved original F010 value for ↺ Restore: 73000000000000000000000000000000",
+  "in | The key self-check found no errors (DASH C024115D, BCM 801941AE)."
+ ],
+ "stat": "Not connected",
+ "dot": "dot",
+ "last": {
+  "cls": "last",
+  "text": ""
+ },
+ "res": {
+  "r1": {
+   "cls": "res",
+   "text": ""
+  },
+  "r2": {
+   "cls": "res",
+   "text": ""
+  },
+  "r3": {
+   "cls": "res",
+   "text": ""
+  },
+  "rD": {
+   "cls": "res",
+   "text": ""
+  },
+  "r4": {
+   "cls": "res",
+   "text": ""
+  },
+  "rR": {
+   "cls": "res",
+   "text": ""
+  }
+ },
+ "buttons": {
+  "b1": {
+   "text": "① Connect to OBDLink CX",
+   "disabled": false,
+   "cls": "step"
+  },
+  "b2": {
+   "text": "② Start session and unlock",
+   "disabled": true,
+   "cls": "step"
+  },
+  "b3": {
+   "text": "③ Read configuration",
+   "disabled": true,
+   "cls": "step"
+  },
+  "b4": {
+   "text": "④ Write configuration and reset",
+   "disabled": true,
+   "cls": "step"
+  },
+  "bdry": {
+   "text": "↪ Dry run (read-only)",
+   "disabled": true,
+   "cls": "step ghost"
+  },
+  "brb": {
+   "text": "↺ Restore",
+   "disabled": true,
+   "cls": "step ghost"
+  }
+ },
+ "cfgv": "",
+ "prev": "",
+ "inputs": {
+  "orig": "73000000000000000000000000000000",
+  "raw": "",
+  "ack": true,
+  "grips": true,
+  "seat": true
+ },
+ "storage": {
+  "cf800-heating-coder.F010.original": "73000000000000000000000000000000",
+  "cf800-heating-coder.ack.preview": "1"
+ }
+}

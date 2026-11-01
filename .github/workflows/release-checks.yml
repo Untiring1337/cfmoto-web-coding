@@ -1,0 +1,59 @@
+name: Release checks
+
+# Required check for pull requests into main (CONTRIBUTING.md). It runs again when the base branch of a pull request
+# changes ("edited"), so a pull request that passed its checks against dev cannot be retargeted to main without it.
+# A separate workflow keeps the full CI from running again for each edit of a title or description.
+# There is no branches filter: the job reads the current base from the event, so a retarget is always evaluated.
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  release-source:
+    name: Release source
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pages: read
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      BASE_REF: ${{ github.event.pull_request.base.ref }}
+    steps:
+      - name: Pull requests into main come from dev
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          HEAD_REPO: ${{ github.event.pull_request.head.repo.full_name }}
+        run: |
+          if [ "$BASE_REF" != main ]; then echo "The base branch is $BASE_REF. This check applies only to pull requests into main."; exit 0; fi
+          if [ "$HEAD_REF" = dev ] && [ "$HEAD_REPO" = "$REPO" ]; then exit 0; fi
+          # Until the dev branch exists (first release only), a pull request from another branch is accepted.
+          if ! err=$(gh api "repos/$REPO/branches/dev" --silent 2>&1); then
+            case "$err" in
+              *"HTTP 404"*) echo "::warning::The dev branch does not exist yet. This pull request is accepted as the first release."; exit 0 ;;
+              *) echo "::error::Could not check for the dev branch: $err"; exit 1 ;;
+            esac
+          fi
+          echo "::error::Pull requests into main must come from the dev branch of this repository (this one comes from $HEAD_REPO:$HEAD_REF). Change the base branch to dev."
+          exit 1
+      - name: GitHub Pages is deployed by GitHub Actions
+        if: github.event.pull_request.base.ref == 'main'
+        run: |
+          # With the source "Deploy from a branch", each merge into main would publish the repository root, which has
+          # no index.html. Then the address of the first release would show the README instead of the tool.
+          if ! build_type=$(gh api "repos/$REPO/pages" --jq .build_type 2>&1); then
+            echo "::error::Could not read the GitHub Pages settings: $build_type"
+            exit 1
+          fi
+          if [ "$build_type" != workflow ]; then
+            echo "::error::The GitHub Pages source is \"$build_type\". Before you merge, set Settings > Pages > Build and deployment > Source to \"GitHub Actions\"."
+            exit 1
+          fi

@@ -1,9 +1,12 @@
 version: 2
 
+# Version updates go to dev, like all other changes; they reach main with the next release (CONTRIBUTING.md).
+# Security updates always open against the default branch (main); retarget them to dev.
 updates:
   # GitHub Actions used by the workflows (pinned to commit SHAs).
   - package-ecosystem: github-actions
     directory: /
+    target-branch: dev
     schedule:
       interval: weekly
     cooldown:
@@ -12,9 +15,22 @@ updates:
       github-actions:
         patterns: ["*"]
 
-  # Test dependencies (Playwright). The site itself has no dependencies.
+  # Deployment tooling (wrangler). The site itself has no dependencies.
+  - package-ecosystem: npm
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      deployment-tooling:
+        patterns: ["*"]
+
+  # Test dependencies (Playwright).
   - package-ecosystem: npm
     directory: /tests
+    target-branch: dev
     schedule:
       interval: weekly
     cooldown:

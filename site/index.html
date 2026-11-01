@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>CF800-11H Heated Grip &amp; Seat Coder</title>
+<link rel="canonical" href="https://cfmoto-web-coding.stenmartens.workers.dev/">
+<script>
+  // The released tool is served only from PRODUCTION_ORIGIN. On every other address (the GitHub Pages dev preview,
+  // a local test server) the preview banner stays visible, search engines are asked not to index the page, and the
+  // page does not show inside a frame.
+  var PRODUCTION_ORIGIN = "https://cfmoto-web-coding.stenmartens.workers.dev";
+  (function () {
+    if (location.origin === PRODUCTION_ORIGIN) { document.documentElement.classList.add("is-production"); return; }
+    var m = document.createElement("meta"); m.name = "robots"; m.content = "noindex"; document.head.appendChild(m);
+    if (window.top !== window.self) document.documentElement.style.display = "none";
+  })();
+</script>
 <style>
   :root{--bg:#0f1115;--card:#1a1d24;--line:#2b2f3a;--fg:#e8eaed;--mut:#9aa1ad;--accent:#ff7a2f;
         --ok:#36c56f;--warn:#ffb020;--bad:#ff5252;--mono:ui-monospace,Menlo,Consolas,monospace}
@@ -46,6 +58,13 @@
   .seg{display:flex;gap:8px;margin:2px 0 8px}
   .seg button{flex:1;background:var(--bg);border:1px solid var(--line);color:var(--mut);padding:8px;border-radius:9px;font-size:.8rem}
   .seg button[aria-pressed=true]{border-color:var(--accent);color:var(--fg);background:rgba(255,122,47,.12)}
+  .pv{border:2px solid var(--warn);background:rgba(255,176,32,.12);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:.84rem;overflow-wrap:anywhere}
+  .pv b{display:block;margin:0 0 4px}
+  .pv a{color:var(--accent)}
+  .pv code{font-family:var(--mono)}
+  .pv button{font:inherit;margin:0 4px;padding:2px 8px;border-radius:6px;border:1px solid var(--line);background:var(--card);color:var(--fg)}
+  .pv .pvb{display:block;margin-top:4px;color:var(--mut)}
+  .is-production .pv{display:none}
   .disc{border:1px solid var(--bad);background:rgba(255,82,82,.08);border-radius:12px;padding:12px 14px;margin:0 0 14px;font-size:.84rem}
   .disc b{display:block;margin:0 0 4px}
   .foot{color:var(--mut);font-size:.76rem;line-height:1.6;margin:20px 0 0;border-top:1px solid var(--line);padding-top:12px}
@@ -53,6 +72,13 @@
 </style>
 </head>
 <body>
+  <div class="pv" id="pv" role="note">
+    <b>PREVIEW VERSION — NOT RELEASED.</b>
+    Do not use this version on your motorcycle. Use the released tool: <a id="pvlink" href="https://cfmoto-web-coding.stenmartens.workers.dev/">cfmoto-web-coding.stenmartens.workers.dev</a>
+    <span id="pvorig" hidden>This address keeps an original F010 value from an earlier use of this tool: <code id="pvval"></code><button type="button" id="pvcopy">Copy</button> The released tool cannot see this value. Keep a copy of it.</span>
+    <span class="pvb">Build: <code id="pvbuild"><!--BUILD-->local<!--/BUILD--></code></span>
+  </div>
+
   <div class="disc" role="note">
     <b>This community project is independent of CFMOTO. CFMOTO did not approve or endorse it.</b>
     This tool reads and writes configuration data in the instrument cluster of your motorcycle through the diagnostic connector. This tool is supplied "as is", without warranty of any kind. A change to the configuration of your motorcycle can have an effect on your warranty. If you make the change incorrectly, a module can have an incorrect configuration. You use this tool fully at your own risk. Only you are responsible for all changes that you make to your motorcycle.
@@ -112,7 +138,7 @@
 
   <div class="card">
     <h2>Rollback — Restore the original configuration</h2>
-    <p class="d">↺ Restore writes the original configuration record to the instrument cluster again. Before step 4 writes for the first time, this tool automatically saves the original F010 value in this browser and shows it in the field. You can also enter the <i>current F010</i> value that an earlier log showed before your first write. ↺ Restore uses the same write procedure as step 4. Before you use ↺ Restore, do step 3. The value in the field must have the same length as the configuration record in the instrument cluster.</p>
+    <p class="d">↺ Restore writes the original configuration record to the instrument cluster again. Before step 4 writes for the first time, this tool automatically saves the original F010 value in this browser and shows it in the field. You can also enter the <i>current F010</i> value that an earlier log showed before your first write. ↺ Restore uses the same write procedure as step 4. Before you use ↺ Restore, do step 3. The value in the field must have the same length as the configuration record in the instrument cluster. If you used this tool at the earlier address untiring1337.github.io/cfmoto-web-coding, your original F010 value is saved at that address. Open that address to see it.</p>
     <div class="rowc"><input id="orig" placeholder="original F010 value, for example 7300…" autocapitalize="characters" spellcheck="false"><button class="step ghost" id="brb" style="width:auto;padding:10px 14px" disabled>↺ Restore</button></div>
     <div class="res" id="rR"></div>
   </div>
@@ -192,7 +218,9 @@
   if(!navigator.bluetooth){ $("noble").style.display="block"; }
 
   // ---- risk acknowledgement: Connect stays disabled until the notice has been accepted ----
-  var ACK_KEY="cf800-heating-coder.ack";
+  // Outside production (the preview uses the address of the first release) the acknowledgement has its own key.
+  // An acknowledgement given to the released tool must not enable Connect in an unreleased version.
+  var ACK_KEY="cf800-heating-coder.ack"+(document.documentElement.classList.contains("is-production")?"":".preview");
   function ackStored(){ try{ return localStorage.getItem(ACK_KEY)==="1"; }catch(_){ return false; } }
   function ackSave(v){ try{ localStorage.setItem(ACK_KEY,v?"1":"0"); }catch(_){} }
   function b1Gate(){ $("b1").disabled=connecting || !navigator.bluetooth || !$("ack").checked; }
@@ -599,7 +627,7 @@
     var so=storedOriginal(), first=!sessionOrig;
     if(first) sessionOrig=so||toHexStr(b);
     if(!so){
-      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","The tool saved the original F010 value in this browser for ↺ Restore: "+sessionOrig+". Make sure that this value is the same as the \"current F010\" value from before your first write."); }
+      try{ localStorage.setItem(ORIG_KEY,sessionOrig); line("in","The tool saved the original F010 value in this browser for ↺ Restore: "+sessionOrig+". Make sure that this value is the same as the \"current F010\" value from before your first write. If you used this tool at the earlier address untiring1337.github.io/cfmoto-web-coding, your original F010 value is saved at that address."); }
       catch(_){ if(first) line("er","The tool could not save the original F010 value in this browser, because browser storage is blocked. Keep a copy of this value: "+sessionOrig+". The tool read this value before step ④ wrote for the first time after you opened this page. If you wrote F010 before you opened this page, use the first \"current F010\" value from that earlier log."); }
     }
     if(!$("orig").value.trim()) $("orig").value=sessionOrig;
@@ -722,6 +750,16 @@
   $("b4").addEventListener("click",writeCfg);
   $("brb").addEventListener("click",restoreOrig);
   $("orig").value=storedOriginal();                 // the pre-write record this phone saved, if any
+  // Preview only: show an original F010 value that this address saved when it served the released tool.
+  // Reads storage only: no log line, no timer, no storage write.
+  (function(){
+    if(document.documentElement.classList.contains("is-production")) return;
+    var so=storedOriginal(); if(!so) return;
+    $("pvval").textContent=so; $("pvorig").hidden=false;
+    $("pvcopy").addEventListener("click",function(){
+      if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(so).then(function(){ $("pvcopy").textContent="Copied"; },function(){});
+    });
+  })();
   $("bdry").addEventListener("click",dryRun);
   $("grips").addEventListener("change",preview);
   $("seat").addEventListener("change",preview);

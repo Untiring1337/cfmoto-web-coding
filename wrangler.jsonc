@@ -1,0 +1,15 @@
+// Cloudflare Workers configuration for production. The Worker serves only the static files in ./site.
+// Deployed by .github/workflows/ci.yml from the main branch after all checks pass.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "cfmoto-web-coding",
+  // Must not be later than the workerd version bundled with the pinned wrangler (1.20261019.1).
+  "compatibility_date": "2026-10-19",
+  "assets": {
+    "directory": "./site",
+    "not_found_handling": "404-page"
+  },
+  "workers_dev": true,
+  "preview_urls": false,
+  "send_metrics": false
+}

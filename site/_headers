@@ -1,0 +1,9 @@
+# HTTP headers for every response from production (Cloudflare Workers static assets).
+# GitHub Pages (the dev preview) cannot set headers; the preview deploy removes this file.
+# script-src and style-src follow when the inline script and styles become separate files.
+/*
+  Content-Security-Policy: frame-ancestors 'none'; base-uri 'none'; form-action 'none'; object-src 'none'
+  Permissions-Policy: bluetooth=(self), clipboard-write=(self), camera=(), microphone=(), geolocation=(), usb=(), serial=(), hid=(), payment=()
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff
+  Cross-Origin-Opener-Policy: same-origin

@@ -2,6 +2,7 @@
 // Each entry is [name, mock configuration, async steps(t)]. See tests/sim/harness.js for the helper API.
 'use strict';
 const { assert } = require('../sim/harness');
+const { PRODUCTION_ORIGIN: PROD, LOCAL_ORIGIN } = require('../sim/serve');
 
 const scenarios = [
   ['happy path: connect, dry run, read, STPX write, verify', {}, async t => {
@@ -420,6 +421,75 @@ scenarios.push(
     const al = await t.page.evaluate(() => window.__alerts);
     assert(al.length === 1 && /Select "Heated grips", "Heated seat", or both/.test(al[0]), 'alert: ' + JSON.stringify(al));
     assert((await t.sent()).length === n, 'nothing sent');
+  }],
+);
+
+// ---- Hosting: production headers and the preview banner ----
+// The released tool is served only from PRODUCTION_ORIGIN (one constant in site/index.html); all other scenarios run
+// there. Every other address, such as the GitHub Pages dev preview, shows the preview banner.
+// site/_headers applies to every response in all scenarios.
+const PREVIEW = { origin: 'https://untiring1337.github.io', basePath: '/cfmoto-web-coding/', pageFile: '' };
+const SAVED = '73000000000000000000000000000000';
+const BANNER = t => t.page.evaluate(() => ({
+  shown: getComputedStyle(document.getElementById('pv')).display !== 'none',
+  noindex: !!document.querySelector('meta[name="robots"][content="noindex"]'),
+  saved: document.getElementById('pvorig').hidden ? null : document.getElementById('pvval').textContent,
+  link: document.getElementById('pvlink').href,
+  canonical: document.querySelector('link[rel="canonical"]').href,
+  build: document.getElementById('pvbuild').textContent,
+}));
+const CONNECT_DRY = async t => {
+  await t.click('b1'); await t.until(/connected and ready/); await t.click('bdry'); await t.until(/DRY RUN/);
+  assert(/DRY RUN \(read-only\) ✓/.test(await t.logText()), 'dry run should pass');
+};
+
+scenarios.push(
+  ['production headers: Bluetooth and clipboard allowed, other device features blocked', {}, async t => {
+    const fp = await t.page.evaluate(() => Object.fromEntries(
+      ['bluetooth', 'clipboard-write', 'camera', 'microphone', 'geolocation', 'usb', 'serial', 'hid', 'payment']
+        .map(f => [f, document.featurePolicy.allowsFeature(f)])));
+    assert(fp.bluetooth && fp['clipboard-write'], 'allowed: ' + JSON.stringify(fp));
+    for (const f of ['camera', 'microphone', 'geolocation', 'usb', 'serial', 'hid', 'payment']) assert(fp[f] === false, f + ' must be blocked: ' + JSON.stringify(fp));
+    await CONNECT_DRY(t);
+  }],
+  ['preview banner on a local test server', { origin: LOCAL_ORIGIN }, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.noindex && b.saved === null && b.build === 'local', 'banner: ' + JSON.stringify(b));
+    assert(b.link === PROD + '/' && b.canonical === PROD + '/', 'links: ' + JSON.stringify(b));
+  }],
+  ['preview banner on the GitHub Pages address; the tool works below the base path', PREVIEW, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.noindex && b.saved === null, 'banner: ' + JSON.stringify(b));
+    assert(t.page.url() === PREVIEW.origin + PREVIEW.basePath, 'url: ' + t.page.url());
+    await CONNECT_DRY(t);
+  }],
+  ['production origin: no banner, page can be indexed', {}, async t => {
+    const b = await BANNER(t);
+    assert(!b.shown && !b.noindex, 'banner: ' + JSON.stringify(b));
+    await CONNECT_DRY(t);
+  }],
+  ['preview with a saved original: the banner shows it and Copy puts it on the clipboard', { ...PREVIEW, storage: { 'cf800-heating-coder.F010.original': SAVED } }, async t => {
+    const b = await BANNER(t);
+    assert(b.shown && b.saved === SAVED, 'banner: ' + JSON.stringify(b));
+    await t.click('pvcopy');
+    await t.page.waitForFunction(() => document.getElementById('pvcopy').textContent === 'Copied', null, { timeout: 5000 });
+    const clip = await t.page.evaluate(() => navigator.clipboard.readText());
+    assert(clip === SAVED, 'clipboard: ' + clip);
+  }],
+  ['production with a saved original: the banner stays hidden', { storage: { 'cf800-heating-coder.F010.original': SAVED } }, async t => {
+    const b = await BANNER(t);
+    assert(!b.shown && b.saved === null, 'banner: ' + JSON.stringify(b));
+    assert((await t.page.inputValue('#orig')) === SAVED, 'the saved original is still in the ↺ Restore field');
+  }],
+  ['preview ignores the acknowledgement given to the released tool', { ...PREVIEW, noAck: true, storage: { 'cf800-heating-coder.ack': '1' } }, async t => {
+    assert(!(await t.page.isChecked('#ack')) && (await t.btn('b1')).disabled, 'Connect must stay disabled on the preview');
+    await t.page.check('#ack'); assert(!(await t.btn('b1')).disabled, 'ticking the box enables Connect');
+    const st = await t.page.evaluate(() => [localStorage.getItem('cf800-heating-coder.ack'), localStorage.getItem('cf800-heating-coder.ack.preview')]);
+    assert(st[0] === '1' && st[1] === '1', 'the preview saves its own key and leaves the released key: ' + JSON.stringify(st));
+  }],
+  ['preview remembers its own acknowledgement across a reload', { ...PREVIEW, noAck: true }, async t => {
+    await t.page.check('#ack'); await t.reload();
+    assert((await t.page.isChecked('#ack')) && !(await t.btn('b1')).disabled, 'remembered on the preview');
   }],
 );
 

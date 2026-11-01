@@ -1,17 +1,25 @@
-name: Tests
+name: CI
 
+# Branch flow (CONTRIBUTING.md): feature branch -> pull request into dev -> preview on GitHub Pages ->
+# release pull request dev -> main -> production on Cloudflare Workers. Both deploys run only after all checks pass.
 on:
-  push:
-    branches: [main]
   pull_request:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
 
 permissions:
   contents: read
 
-# A newer push to the same branch or pull request cancels the run that is still in progress.
+env:
+  # wrangler sends usage metrics unless this is set; send_metrics in wrangler.jsonc does not cover every event.
+  WRANGLER_SEND_METRICS: "false"
+
+# For pull requests, a newer push cancels the run in progress. Pushes to main and dev queue instead, so a deploy is
+# never stopped while it runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   simulations:
@@ -28,12 +36,199 @@ jobs:
           persist-credentials: false
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
-          node-version-file: tests/.nvmrc
+          node-version-file: .nvmrc
           cache: npm
           cache-dependency-path: tests/package-lock.json
       - name: Install test dependencies
         run: npm ci --no-audit --no-fund
       - name: Install Chromium for the pinned Playwright version
-        run: npx playwright install --with-deps chromium
+        run: npm exec --no -- playwright install --with-deps chromium
       - name: Run simulations and compare with golden snapshots
         run: npm test -- --jobs 4
+
+  site-checks:
+    name: Site checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install wrangler
+        run: npm ci --no-audit --no-fund
+      - name: Check the site files
+        run: node tests/site-check.mjs static
+      - name: Check the Worker configuration
+        run: npm exec --no -- wrangler deploy --dry-run
+      - name: Check the responses from Cloudflare's asset server (wrangler dev)
+        run: node tests/site-check.mjs local
+
+  deploy-production:
+    name: Deploy to production (Cloudflare Workers)
+    needs: [simulations, site-checks]
+    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: production
+      url: ${{ steps.origin.outputs.origin }}
+    concurrency:
+      group: deploy-production
+      cancel-in-progress: false
+    defaults:
+      run:
+        working-directory: .
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      # A re-run of an older run, or a run that waited behind a newer push, must not replace a newer production.
+      - name: Deploy only the newest commit on main
+        id: newest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          head=$(gh api "repos/$REPO/branches/main" --jq .commit.sha)
+          if [ "$head" = "$GITHUB_SHA" ]; then echo "newest=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "newest=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::main is now at ${head::7}. This run is for ${GITHUB_SHA::7} and does not deploy. The run for the newest commit deploys."
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.newest.outputs.newest == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: package-lock.json
+      - name: Install wrangler
+        if: steps.newest.outputs.newest == 'true'
+        run: npm ci --no-audit --no-fund
+      - name: Read the production origin
+        if: steps.newest.outputs.newest == 'true'
+        id: origin
+        run: |
+          origin=$(sed -n 's/^ *var PRODUCTION_ORIGIN = "\(https:[^"]*\)";.*/\1/p' site/index.html)
+          test -n "$origin"
+          echo "origin=$origin" >> "$GITHUB_OUTPUT"
+      - name: Record the version that production runs now
+        if: steps.newest.outputs.newest == 'true'
+        id: previous
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          version=$(node tests/active-version.mjs)
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Production runs version: ${version:-none (first deploy)}"
+      - name: Deploy
+        if: steps.newest.outputs.newest == 'true'
+        id: deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_OUTPUT_FILE_PATH: ${{ runner.temp }}/wrangler-output.json
+        run: npm exec --no -- wrangler deploy --message "main ${GITHUB_SHA::7}"
+      - name: Check that the deploy went to the production origin
+        if: steps.newest.outputs.newest == 'true'
+        env:
+          ORIGIN: ${{ steps.origin.outputs.origin }}
+          OUTPUT: ${{ runner.temp }}/wrangler-output.json
+        run: |
+          node -e '
+            const lines = require("fs").readFileSync(process.env.OUTPUT, "utf8").trim().split("\n").map(l => JSON.parse(l));
+            const d = lines.filter(l => l.type === "deploy").pop();
+            if (!d) throw new Error("wrangler wrote no deploy record");
+            console.log("Version " + d.version_id + " deployed to: " + (d.targets || []).join(", "));
+            if (!(d.targets || []).some(t => t.replace(/\/$/, "") === process.env.ORIGIN)) {
+              console.log("::error::The Worker is not served at the production origin " + process.env.ORIGIN + ". Make sure that PRODUCTION_ORIGIN in site/index.html agrees with the workers.dev subdomain of the Cloudflare account.");
+              process.exit(1);
+            }'
+      - name: Check the production responses
+        if: steps.newest.outputs.newest == 'true'
+        timeout-minutes: 6
+        run: node tests/site-check.mjs production
+      # Runs when any step above failed or the run was cancelled, also when the deploy step itself failed: wrangler
+      # can make the new version live and then fail. Production is set back to the version recorded before the deploy.
+      - name: Roll back to the version from before the deploy
+        if: (failure() || cancelled()) && steps.previous.outputs.version != ''
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          PREVIOUS: ${{ steps.previous.outputs.version }}
+        run: |
+          if [ "$(node tests/active-version.mjs)" = "$PREVIOUS" ]; then
+            echo "Production still runs version $PREVIOUS. A rollback is not necessary."
+            exit 0
+          fi
+          npm exec --no -- wrangler rollback "$PREVIOUS" --yes --message "Production check failed for main ${GITHUB_SHA::7}"
+          test "$(node tests/active-version.mjs)" = "$PREVIOUS"
+          echo "::error::Production was rolled back to version $PREVIOUS. Revert the change on dev, then release (CONTRIBUTING.md, Rollback)."
+      - name: Report a failed first deploy
+        if: failure() && steps.previous.outcome == 'success' && steps.previous.outputs.version == ''
+        run: echo "::error::This was the first deploy, so there is no earlier version to roll back to. Correct the problem, then run the workflow on main again."
+
+  deploy-preview:
+    name: Deploy the dev preview (GitHub Pages)
+    needs: [simulations, site-checks]
+    if: github.repository == 'Untiring1337/cfmoto-web-coding' && github.ref == 'refs/heads/dev' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    concurrency:
+      group: pages
+      cancel-in-progress: false
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Deploy only the newest commit on dev
+        id: newest
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          head=$(gh api "repos/$REPO/branches/dev" --jq .commit.sha)
+          if [ "$head" = "$GITHUB_SHA" ]; then echo "newest=true" >> "$GITHUB_OUTPUT"; exit 0; fi
+          echo "newest=false" >> "$GITHUB_OUTPUT"
+          echo "::notice::dev is now at ${head::7}. This run is for ${GITHUB_SHA::7} and does not deploy. The run for the newest commit deploys."
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        if: steps.newest.outputs.newest == 'true'
+        with:
+          node-version-file: .nvmrc
+      # The preview replaces the page at the address of the first release. It must not do that while the production
+      # address does not serve the released tool, because then users would have no released tool.
+      - name: Check that production serves the released tool
+        if: steps.newest.outputs.newest == 'true'
+        run: node tests/site-check.mjs live
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+        if: steps.newest.outputs.newest == 'true'
+      - name: Copy the site and stamp the build ID
+        if: steps.newest.outputs.newest == 'true'
+        run: |
+          mkdir -p "$RUNNER_TEMP/pages"
+          cp -R site/. "$RUNNER_TEMP/pages/"
+          # GitHub Pages cannot apply site/_headers; it would be served as a plain file.
+          rm "$RUNNER_TEMP/pages/_headers"
+          sed -i "s|<!--BUILD-->local<!--/BUILD-->|<!--BUILD-->dev ${GITHUB_SHA::7}<!--/BUILD-->|" "$RUNNER_TEMP/pages/index.html"
+          grep -q "<!--BUILD-->dev ${GITHUB_SHA::7}<!--/BUILD-->" "$RUNNER_TEMP/pages/index.html"
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        if: steps.newest.outputs.newest == 'true'
+        with:
+          path: ${{ runner.temp }}/pages
+      - name: Deploy
+        if: steps.newest.outputs.newest == 'true'
+        id: deployment
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

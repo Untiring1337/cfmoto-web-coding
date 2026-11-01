@@ -1,0 +1,32 @@
+{
+  "name": "cfmoto-web-coding",
+  "private": true,
+  "description": "Deployment tooling for the CF800-11H Heated Grip & Seat Coder. The site itself has no dependencies.",
+  "license": "MIT",
+  "engines": {
+    "node": ">=26"
+  },
+  "devEngines": {
+    "runtime": {
+      "name": "node",
+      "version": ">=26",
+      "onFail": "error"
+    },
+    "packageManager": {
+      "name": "npm",
+      "version": ">=11",
+      "onFail": "error"
+    }
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "check": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "4.152.0"
+  },
+  "allowScripts": {
+    "esbuild": false,
+    "workerd": false
+  }
+}
